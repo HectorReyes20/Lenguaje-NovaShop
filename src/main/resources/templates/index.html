@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovaShop - Moda que Inspira | Tu Tienda de Ropa Online</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Descubre las últimas tendencias en moda. Ropa de calidad premium para toda la familia con envíos gratis.">
+    <meta name="keywords" content="tienda ropa, moda online, ropa hombre, ropa mujer, tienda online">
+
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+
+    <style>
+        /* Eliminar espacios entre navbar y hero */
+        .hero-section {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+        }
+
+        /* Alertas flotantes sin afectar el layout */
+        .alerts-container {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            width: 90%;
+            max-width: 600px;
+            pointer-events: none;
+        }
+
+        .alerts-container .alert {
+            pointer-events: auto;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ========================================== -->
+<!-- NAVBAR -->
+<!-- ========================================== -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<!-- ========================================== -->
+<!-- ALERTAS GLOBALES - Ahora flotantes -->
+<!-- ========================================== -->
+<div class="alerts-container">
+    <div class="alert alert-success alert-dismissible fade show"
+         role="alert"
+         th:if="${mensaje}"
+         style="border-radius: 15px; border: none; box-shadow: 0 4px 6px rgba(72, 187, 120, 0.2);">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <strong>¡Éxito!</strong>
+        <span th:text="${mensaje}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="alert alert-danger alert-dismissible fade show"
+         role="alert"
+         th:if="${error}"
+         style="border-radius: 15px; border: none; box-shadow: 0 4px 6px rgba(245, 101, 101, 0.2);">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <strong>¡Error!</strong>
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="alert alert-info alert-dismissible fade show"
+         role="alert"
+         th:if="${info}"
+         style="border-radius: 15px; border: none; box-shadow: 0 4px 6px rgba(66, 153, 225, 0.2);">
+        <i class="bi bi-info-circle-fill me-2"></i>
+        <strong>Información:</strong>
+        <span th:text="${info}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- HERO SECTION -->
+<!-- ========================================== -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <!-- Columna Izquierda: Contenido -->
+            <div class="col-lg-6 hero-content">
+                <h1 data-aos="fade-up" class="mb-4">
+                    Moda que<br>
+                    <span class="text-gradient">Inspira</span>
+                </h1>
+
+                <p class="lead mb-5" data-aos="fade-up" data-aos-delay="100">
+                    Descubre las últimas tendencias en moda. Calidad premium,
+                    diseños únicos y estilo inigualable para cada momento de tu vida.
+                </p>
+
+                <div class="hero-buttons mb-5" data-aos="fade-up" data-aos-delay="200">
+                    <a th:href="@{/productos}" class="btn btn-hero-primary me-3 mb-3">
+                        <i class="bi bi-bag me-2"></i> Explorar Colección
+                    </a>
+                    <a th:href="@{/ofertas}" class="btn btn-hero-secondary mb-3">
+                        <i class="bi bi-tag me-2"></i> Ver Ofertas
+                    </a>
+                </div>
+
+                <!-- Stats -->
+                <div class="row text-white g-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="col-4">
+                        <h3 class="fw-bold mb-1">500+</h3>
+                        <small class="text-white-50">Productos</small>
+                    </div>
+                    <div class="col-4">
+                        <h3 class="fw-bold mb-1">10K+</h3>
+                        <small class="text-white-50">Clientes Felices</small>
+                    </div>
+                    <div class="col-4">
+                        <h3 class="fw-bold mb-1">4.9★</h3>
+                        <small class="text-white-50">Valoración</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna Derecha: Imagen -->
+            <div class="col-lg-6 d-none d-lg-block">
+                <div class="hero-decoration" data-aos="fade-left" data-aos-delay="200">
+                    <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&h=800&fit=crop"
+                         alt="Fashion"
+                         class="img-fluid rounded-4 shadow-lg"
+                         style="max-width: 100%; border-radius: 30px !important;">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========================================== -->
+<!-- MARCAS / LOGOS -->
+<!-- ========================================== -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row align-items-center text-center text-muted g-4">
+            <div class="col-12 col-md mb-3 mb-md-0">
+                <p class="mb-0 small fw-semibold">MARCAS DESTACADAS</p>
+            </div>
+            <div class="col"><i class="bi bi-bag-fill fs-3"></i></div>
+            <div class="col"><i class="bi bi-star-fill fs-3"></i></div>
+            <div class="col"><i class="bi bi-heart-fill fs-3"></i></div>
+            <div class="col"><i class="bi bi-award-fill fs-3"></i></div>
+            <div class="col"><i class="bi bi-gem fs-3"></i></div>
+        </div>
+    </div>
+</section>
+
+<!-- ========================================== -->
+<!-- CATEGORÍAS -->
+<!-- ========================================== -->
+<section class="py-4 my-3">
+    <div class="container">
+        <div class="section-title mb-5" data-aos="fade-up">
+            <h2 class="mb-3">Compra por Categoría</h2>
+            <p>Encuentra exactamente lo que buscas en nuestras colecciones cuidadosamente seleccionadas</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6"
+                 th:each="categoria, iterStat : ${categorias}"
+                 data-aos="fade-up"
+                 th:attr="data-aos-delay=${iterStat.index * 100}">
+                <div class="category-card">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-tags mb-3"></i>
+                        <h5 class="mb-3" th:text="${categoria.nombre}">Categoría</h5>
+                        <p class="card-text text-muted mb-4" th:text="${categoria.descripcion}">
+                            Descripción de la categoría
+                        </p>
+                        <a th:href="@{/productos(categoria=${categoria.idCategoria})}"
+                           class="btn btn-outline-dark px-4">
+                            Explorar <i class="bi bi-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========================================== -->
+<!-- BANNER PROMOCIONAL -->
+<!-- ========================================== -->
+<section class="py-4 my-3" style="background: linear-gradient(135deg, #1e40af 0%, #0f172a 100%);">
+    <div class="container py-3">
+        <div class="row align-items-center text-white g-4">
+            <div class="col-lg-8" data-aos="fade-right">
+                <h2 class="display-5 fw-bold mb-4">
+                    <i class="bi bi-lightning-fill text-warning me-2"></i>
+                    Flash Sale - 48 Horas
+                </h2>
+                <p class="lead mb-4">
+                    Hasta 60% de descuento en productos seleccionados.
+                    No dejes pasar esta oportunidad única.
+                </p>
+                <a th:href="@{/ofertas}" class="btn btn-light btn-lg px-5">
+                    Ver Ofertas Flash <i class="bi bi-arrow-right ms-2"></i>
+                </a>
+            </div>
+
+            <div class="col-lg-4 text-center" data-aos="fade-left">
+                <div class="p-4">
+                    <h1 class="display-1 fw-bold mb-0">60%</h1>
+                    <p class="fs-4 mb-0">OFF</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========================================== -->
+<!-- PRODUCTOS DESTACADOS -->
+<!-- ========================================== -->
+<section class="py-4 my-3 bg-light">
+    <div class="container py-3">
+        <div class="section-title mb-5" data-aos="fade-up">
+            <h2 class="mb-3">Productos Destacados</h2>
+            <p>Nuestra selección especial de productos más vendidos y mejor valorados</p>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <div class="col-lg-3 col-md-6"
+                 th:each="producto, iterStat : ${productosDestacados}"
+                 data-aos="fade-up"
+                 th:attr="data-aos-delay=${iterStat.index * 50}">
+                <div class="product-card">
+                    <div class="product-image-container">
+                        <img th:src="@{${producto.imagenes[0]?.urlImagen}}"
+                             th:alt="${producto.nombre}"
+                             onerror="this.src='https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=400&h=500&fit=crop'">
+
+                        <!-- Badge de oferta -->
+                        <div class="product-badge" th:if="${producto.precioOferta != null}">
+                            <span class="badge">
+                                -<span th:text="${#numbers.formatDecimal((1 - producto.precioOferta / producto.precioBase) * 100, 0, 0)}">20</span>%
+                            </span>
+                        </div>
+
+                        <!-- Acciones rápidas -->
+                        <div class="product-actions">
+                            <button class="btn" title="Vista rápida">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn" title="Agregar a favoritos">
+                                <i class="bi bi-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <p class="product-brand mb-2" th:text="${producto.marca}">MARCA</p>
+                        <h6 class="card-title mb-3" th:text="${producto.nombre}">Producto</h6>
+
+                        <div class="product-price mb-3">
+                            <span class="price-original"
+                                  th:if="${producto.precioOferta != null}"
+                                  th:text="'S/ ' + ${#numbers.formatDecimal(producto.precioBase, 0, 'COMMA', 2, 'POINT')}">
+                                S/ 100.00
+                            </span>
+                            <span class="price-final"
+                                  th:with="precio=${producto.precioOferta != null ? producto.precioOferta : producto.precioBase}"
+                                  th:text="'S/ ' + ${#numbers.formatDecimal(precio, 1, 2)}">
+                                S/ 89.90
+                            </span>
+                        </div>
+
+                        <a th:href="@{/productos/{id}(id=${producto.idProducto})}"
+                           class="btn btn-primary w-100">
+                            <i class="bi bi-cart-plus me-2"></i> Agregar al Carrito
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-5" data-aos="fade-up">
+            <a th:href="@{/productos}" class="btn btn-dark btn-lg px-5">
+                Ver Toda la Colección <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ========================================== -->
+<!-- OFERTAS ESPECIALES -->
+<!-- ========================================== -->
+<section class="py-4 my-3" th:if="${productosOfertas != null && !productosOfertas.isEmpty()}">
+    <div class="container py-3">
+        <div class="section-title mb-5" data-aos="fade-up">
+            <h2 class="mb-3">
+                <i class="bi bi-fire text-danger me-2"></i>
+                <span class="text-gradient">Ofertas Especiales</span>
+            </h2>
+            <p>Aprovecha estas increíbles ofertas por tiempo limitado</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6"
+                 th:each="producto, iterStat : ${productosOfertas}"
+                 data-aos="fade-up"
+                 th:attr="data-aos-delay=${iterStat.index * 50}">
+                <div class="product-card border-danger">
+                    <div class="product-image-container">
+                        <img th:src="@{${producto.imagenes[0]?.urlImagen}}"
+                             th:alt="${producto.nombre}"
+                             onerror="this.src='https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=400&h=500&fit=crop'">
+
+                        <div class="product-badge">
+                            <span class="badge">
+                                -<span th:text="${#numbers.formatDecimal((1 - producto.precioOferta / producto.precioBase) * 100, 0, 0)}">20</span>% OFF
+                            </span>
+                        </div>
+
+                        <div class="product-actions">
+                            <button class="btn">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn">
+                                <i class="bi bi-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <p class="product-brand mb-2" th:text="${producto.marca}">MARCA</p>
+                        <h6 class="card-title mb-3" th:text="${producto.nombre}">Producto</h6>
+
+                        <div class="product-price mb-3">
+                            <span class="price-original"
+                                  th:text="'S/ ' + ${#numbers.formatDecimal(producto.precioBase, 0, 'COMMA', 2, 'POINT')}">
+                                S/ 100.00
+                            </span>
+                            <span class="price-final text-danger"
+                                  th:text="'S/ ' + ${#numbers.formatDecimal(producto.precioOferta, 0, 'COMMA', 2, 'POINT')}">
+                                S/ 79.90
+                            </span>
+                        </div>
+
+                        <a th:href="@{/productos/{id}(id=${producto.idProducto})}"
+                           class="btn btn-danger w-100">
+                            <i class="bi bi-cart-plus me-2"></i> Agregar al Carrito
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========================================== -->
+<!-- BENEFICIOS -->
+<!-- ========================================== -->
+<section class="benefits-section py-4 my-3">
+    <div class="container py-3">
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="0">
+                <div class="benefit-item p-4">
+                    <i class="bi bi-truck mb-4"></i>
+                    <h5 class="mb-3">Envío Gratis</h5>
+                    <p>En compras mayores a S/ 100. Recibe tu pedido en 24-48 horas.</p>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                <div class="benefit-item p-4">
+                    <i class="bi bi-shield-check mb-4"></i>
+                    <h5 class="mb-3">Compra 100% Segura</h5>
+                    <p>Protegemos tus datos con encriptación SSL de última generación.</p>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                <div class="benefit-item p-4">
+                    <i class="bi bi-arrow-repeat mb-4"></i>
+                    <h5 class="mb-3">Devoluciones Fáciles</h5>
+                    <p>30 días para devolver tu compra sin preguntas. 100% garantizado.</p>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                <div class="benefit-item p-4">
+                    <i class="bi bi-headset mb-4"></i>
+                    <h5 class="mb-3">Soporte Premium</h5>
+                    <p>Atención personalizada 24/7 vía chat, email o teléfono.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========================================== -->
+<!-- NEWSLETTER -->
+<!-- ========================================== -->
+<section class="py-4 my-3 bg-dark text-white">
+    <div class="container py-3">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-6 mb-4 mb-lg-0" data-aos="fade-right">
+                <h3 class="fw-bold mb-3">
+                    <i class="bi bi-envelope-heart text-primary me-2"></i>
+                    Suscríbete a Nuestro Newsletter
+                </h3>
+                <p class="lead mb-0">
+                    Recibe ofertas exclusivas, tips de moda y las últimas novedades
+                    directamente en tu correo.
+                </p>
+            </div>
+
+            <div class="col-lg-6" data-aos="fade-left">
+                <form class="row g-3">
+                    <div class="col-md-8">
+                        <input type="email"
+                               class="form-control form-control-lg"
+                               placeholder="tu@email.com"
+                               style="border-radius: 50px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white;">
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit"
+                                class="btn btn-primary btn-lg w-100"
+                                style="border-radius: 50px;">
+                            <i class="bi bi-send me-2"></i> Suscribirse
+                        </button>
+                    </div>
+                </form>
+                <p class="small text-white-50 mt-3 mb-0">
+                    <i class="bi bi-shield-check me-1"></i>
+                    No compartimos tu información. Cancela cuando quieras.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========================================== -->
+<!-- TESTIMONIOS -->
+<!-- ========================================== -->
+<section class="py-4 my-3">
+    <div class="container py-3">
+        <div class="section-title mb-5" data-aos="fade-up">
+            <h2 class="mb-3">Lo Que Dicen Nuestros Clientes</h2>
+            <p>Miles de clientes satisfechos en todo el país</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="0">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 20px;">
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                        </div>
+                        <p class="mb-4">
+                            "Excelente calidad de productos y el envío fue súper rápido.
+                            La atención al cliente es de primera. ¡Totalmente recomendado!"
+                        </p>
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                                 style="width: 50px; height: 50px; font-weight: 700;">
+                                MC
+                            </div>
+                            <div class="ms-3">
+                                <h6 class="mb-0">María Castillo</h6>
+                                <small class="text-muted">Lima, Perú</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 20px;">
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                        </div>
+                        <p class="mb-4">
+                            "Me encanta la variedad de productos y los precios son muy competitivos.
+                            El proceso de compra es muy fácil y seguro."
+                        </p>
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center"
+                                 style="width: 50px; height: 50px; font-weight: 700;">
+                                JR
+                            </div>
+                            <div class="ms-3">
+                                <h6 class="mb-0">Jorge Ramírez</h6>
+                                <small class="text-muted">Arequipa, Perú</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 20px;">
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                        </div>
+                        <p class="mb-4">
+                            "La mejor tienda online de ropa que he encontrado.
+                            Todo llegó perfecto y la calidad superó mis expectativas."
+                        </p>
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center"
+                                 style="width: 50px; height: 50px; font-weight: 700;">
+                                LT
+                            </div>
+                            <div class="ms-3">
+                                <h6 class="mb-0">Lucía Torres</h6>
+                                <small class="text-muted">Cusco, Perú</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========================================== -->
+<!-- FOOTER -->
+<!-- ========================================== -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- ========================================== -->
+<!-- SCRIPTS -->
+<!-- ========================================== -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- AOS Animation Library -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    AOS.init({
+        duration: 800,
+        easing: 'ease-in-out',
+        once: true,
+        offset: 100
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+
+    <div class="container">
+        <!-- Logo -->
+
+        <a class="navbar-brand fw-bold" th:href="@{/}">
+            <div class="logo">
+                <img src="/images/logo.png" alt="" class="logo-icon">
+                <span>NovaShop</span>
+            </div>
+        </a>
+
+        <!-- Toggle Button -->
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <!-- Menú Principal -->
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/}">
+                        <i class="bi bi-house-door me-1"></i> Inicio
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/productos}">
+                        <i class="bi bi-grid me-1"></i> Productos
+                    </a>
+                </li>
+
+                <!-- Dropdown de Categorías -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-tags me-1"></i> Categorías
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item" th:href="@{/productos(genero='hombre')}">
+                                <i class="bi bi-person text-primary"></i> Hombres
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" th:href="@{/productos(genero='mujer')}">
+                                <i class="bi bi-person-dress text-danger"></i> Mujeres
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" th:href="@{/productos(genero='nino')}">
+                                <i class="bi bi-balloon text-warning"></i> Niños
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" th:href="@{/categorias}">
+                                <i class="bi bi-grid-3x3-gap"></i> Ver todas las categorías
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link text-warning" th:href="@{/ofertas}">
+                        <i class="bi bi-fire me-1"></i> Ofertas
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Buscador -->
+            <form class="d-flex me-3 my-2 my-lg-0" th:action="@{/productos}" method="get">
+                <div class="input-group">
+                    <input class="form-control"
+                           type="search"
+                           name="buscar"
+                           placeholder="Buscar productos..."
+                           style="min-width: 250px;">
+                    <button class="btn btn-outline-light" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Menú Usuario -->
+            <ul class="navbar-nav">
+                <!-- Usuario NO autenticado -->
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="nav-link" th:href="@{/login}">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar Sesión
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="nav-link btn btn-primary ms-2 px-3" th:href="@{/registro}">
+                        <i class="bi bi-person-plus me-1"></i> Registrarse
+                    </a>
+                </li>
+
+                <!-- Usuario autenticado -->
+                <!-- Carrito -->
+                <li class="nav-item position-relative" sec:authorize="isAuthenticated()">
+                    <a class="nav-link position-relative" th:href="@{/carrito}">
+                        <i class="bi bi-cart3 fs-5"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                              th:if="${cantidadCarrito != null && cantidadCarrito > 0}"
+                              th:text="${cantidadCarrito}">
+                            0
+                        </span>
+                    </a>
+                </li>
+
+                <!-- Favoritos -->
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <a class="nav-link" th:href="@{/favoritos}" title="Favoritos">
+                        <i class="bi bi-heart fs-5"></i>
+                    </a>
+                </li>
+
+                <!-- Dropdown de Usuario -->
+                <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center"
+                       href="#"
+                       role="button"
+                       data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle fs-5 me-2"></i>
+                        <span class="d-none d-lg-inline" sec:authentication="name">Usuario</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <h6 class="dropdown-header">
+                                <i class="bi bi-person-badge"></i> Mi Cuenta
+                            </h6>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" th:href="@{/mi-cuenta}">
+                                <i class="bi bi-person"></i> Mi Perfil
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" th:href="@{/mi-cuenta/pedidos}">
+                                <i class="bi bi-box-seam"></i> Mis Pedidos
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" th:href="@{/mi-cuenta/direcciones}">
+                                <i class="bi bi-geo-alt"></i> Mis Direcciones
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" th:href="@{/favoritos}">
+                                <i class="bi bi-heart"></i> Mis Favoritos
+                            </a>
+                        </li>
+
+                        <!-- Sección Admin -->
+                        <li sec:authorize="hasRole('ADMIN')">
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li sec:authorize="hasRole('ADMIN')">
+                            <h6 class="dropdown-header">
+                                <i class="bi bi-shield-check"></i> Administración
+                            </h6>
+                        </li>
+                        <li sec:authorize="hasRole('ADMIN')">
+                            <a class="dropdown-item" th:href="@{/admin}">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
+                        </li>
+                        <li sec:authorize="hasRole('ADMIN')">
+                            <a class="dropdown-item" th:href="@{/admin/productos}">
+                                <i class="bi bi-box"></i> Gestionar Productos
+                            </a>
+                        </li>
+                        <li sec:authorize="hasRole('ADMIN')">
+                            <a class="dropdown-item" th:href="@{/admin/pedidos}">
+                                <i class="bi bi-clipboard-check"></i> Gestionar Pedidos
+                            </a>
+                        </li>
+
+                        <!-- Cerrar Sesión -->
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form th:action="@{/logout}" method="post" class="m-0">
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Alertas globales con animación -->
+<div th:fragment="alerts" class="container mt-3">
+    <div class="alert alert-success alert-dismissible fade show"
+         role="alert"
+         th:if="${mensaje}"
+         style="border-radius: 15px; border: none; box-shadow: 0 4px 6px rgba(72, 187, 120, 0.2);">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <strong>¡Éxito!</strong>
+        <span th:text="${mensaje}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="alert alert-danger alert-dismissible fade show"
+         role="alert"
+         th:if="${error}"
+         style="border-radius: 15px; border: none; box-shadow: 0 4px 6px rgba(245, 101, 101, 0.2);">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <strong>¡Error!</strong>
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="alert alert-info alert-dismissible fade show"
+         role="alert"
+         th:if="${info}"
+         style="border-radius: 15px; border: none; box-shadow: 0 4px 6px rgba(66, 153, 225, 0.2);">
+        <i class="bi bi-info-circle-fill me-2"></i>
+        <strong>Información:</strong>
+        <span th:text="${info}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+</div>
+
+</body>
+</html>

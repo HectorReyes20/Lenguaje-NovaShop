@@ -1,0 +1,229 @@
+<!-- ============================================ -->
+<!-- PERFIL.HTML - MI CUENTA -->
+<!-- Ubicación: src/main/resources/templates/cuenta/perfil.html -->
+<!-- ============================================ -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Cuenta - NovaShop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<!-- ALERTAS -->
+<div th:replace="~{fragments/navbar :: alerts}"></div>
+
+<div class="container my-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/}">Inicio</a></li>
+            <li class="breadcrumb-item active">Mi Cuenta</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- SIDEBAR MENU -->
+        <div class="col-md-3" th:fragment="sidebar">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0">
+                        <i class="bi bi-person-circle"></i> Mi Cuenta
+                    </h6>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a th:href="@{/mi-cuenta}" class="list-group-item list-group-item-action active">
+                        <i class="bi bi-person"></i> Mi Perfil
+                    </a>
+                    <a th:href="@{/mi-cuenta/pedidos}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-box-seam"></i> Mis Pedidos
+                    </a>
+                    <a th:href="@{/mi-cuenta/direcciones}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-geo-alt"></i> Mis Direcciones
+                    </a>
+                    <a th:href="@{/favoritos}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-heart"></i> Mis Favoritos
+                    </a>
+                    <a th:href="@{/mi-cuenta/cambiar-password}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-key"></i> Cambiar Contraseña
+                    </a>
+                    <form th:action="@{/logout}" method="post">
+                        <button type="submit" class="list-group-item list-group-item-action text-danger w-100 text-start border-0">
+                            <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <div class="col-md-9">
+            <!-- Información del Usuario -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-person-badge"></i> Información Personal
+                    </h5>
+                    <a th:href="@{/mi-cuenta/editar}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-pencil"></i> Editar Perfil
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2 text-center mb-3">
+                            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center"
+                                 style="width: 80px; height: 80px; font-size: 2rem;">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-10">
+                            <div class="row mb-3">
+                                <div class="col-sm-4">
+                                    <strong>Nombre Completo:</strong>
+                                </div>
+                                <div class="col-sm-8">
+                                    <span th:text="${usuario.nombre} + ' ' + ${usuario.apellido}">Juan Pérez</span>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-4">
+                                    <strong>Email:</strong>
+                                </div>
+                                <div class="col-sm-8">
+                                    <span th:text="${usuario.email}">juan@example.com</span>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-4">
+                                    <strong>Teléfono:</strong>
+                                </div>
+                                <div class="col-sm-8">
+                                    <span th:text="${usuario.telefono != null ? usuario.telefono : 'No registrado'}">987654321</span>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-4">
+                                    <strong>Miembro desde:</strong>
+                                </div>
+                                <div class="col-sm-8">
+                                    <span th:text="${#temporals.format(usuario.fechaRegistro, 'dd/MM/yyyy')}">30/09/2025</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <strong>Estado:</strong>
+                                </div>
+                                <div class="col-sm-8">
+                                    <span class="badge bg-success" th:if="${usuario.estado.name() == 'ACTIVO'}">Activo</span>
+                                    <span class="badge bg-danger" th:if="${usuario.estado.name() != 'ACTIVO'}"
+                                          th:text="${usuario.estado}">Estado</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estadísticas Rápidas -->
+            <div class="row mb-4">
+                <div class="col-md-4 mb-3">
+                    <div class="card shadow-sm h-100 border-primary">
+                        <div class="card-body text-center">
+                            <i class="bi bi-box-seam fs-1 text-primary mb-2"></i>
+                            <h3 class="mb-0">0</h3>
+                            <p class="text-muted mb-0">Pedidos Totales</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card shadow-sm h-100 border-success">
+                        <div class="card-body text-center">
+                            <i class="bi bi-heart fs-1 text-danger mb-2"></i>
+                            <h3 class="mb-0">0</h3>
+                            <p class="text-muted mb-0">Favoritos</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card shadow-sm h-100 border-warning">
+                        <div class="card-body text-center">
+                            <i class="bi bi-geo-alt fs-1 text-warning mb-2"></i>
+                            <h3 class="mb-0">0</h3>
+                            <p class="text-muted mb-0">Direcciones</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accesos Rápidos -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-lightning"></i> Accesos Rápidos
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <a th:href="@{/mi-cuenta/pedidos}" class="text-decoration-none">
+                                <div class="border rounded p-3 text-center hover-shadow">
+                                    <i class="bi bi-box-seam fs-1 text-primary mb-2"></i>
+                                    <h6>Mis Pedidos</h6>
+                                    <p class="small text-muted mb-0">Ver historial de compras</p>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a th:href="@{/mi-cuenta/direcciones}" class="text-decoration-none">
+                                <div class="border rounded p-3 text-center hover-shadow">
+                                    <i class="bi bi-geo-alt fs-1 text-success mb-2"></i>
+                                    <h6>Mis Direcciones</h6>
+                                    <p class="small text-muted mb-0">Gestionar direcciones de envío</p>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a th:href="@{/favoritos}" class="text-decoration-none">
+                                <div class="border rounded p-3 text-center hover-shadow">
+                                    <i class="bi bi-heart fs-1 text-danger mb-2"></i>
+                                    <h6>Mis Favoritos</h6>
+                                    <p class="small text-muted mb-0">Ver productos guardados</p>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a th:href="@{/productos}" class="text-decoration-none">
+                                <div class="border rounded p-3 text-center hover-shadow">
+                                    <i class="bi bi-bag fs-1 text-warning mb-2"></i>
+                                    <h6>Seguir Comprando</h6>
+                                    <p class="small text-muted mb-0">Explorar productos</p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<style>
+    .hover-shadow:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+</style>
+</body>
+</html>

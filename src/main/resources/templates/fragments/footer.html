@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<footer th:fragment="footer" class="bg-dark text-light mt-5">
+    <!-- Sección Principal del Footer -->
+    <div class="container py-5">
+        <div class="row g-4">
+            <!-- Columna 1: About / Marca -->
+            <div class="col-lg-4 col-md-6">
+                <div class="mb-4">
+                    <h4 class="mb-3 fw-bold">
+                        <i class="bi bi-bag-heart-fill"></i> NovaShop
+                    </h4>
+                    <p class="text-white-50 mb-4">
+                        Tu destino para la moda que inspira. Ofrecemos las últimas tendencias
+                        en ropa de calidad premium para toda la familia, con envíos rápidos
+                        y seguros a todo el Perú.
+                    </p>
+
+                    <!-- Redes Sociales -->
+                    <h6 class="mb-3 fw-semibold">Síguenos</h6>
+                    <div class="d-flex gap-3">
+                        <a href="https://facebook.com" target="_blank" class="text-light" title="Facebook">
+                            <i class="bi bi-facebook"></i>
+                        </a>
+                        <a href="https://instagram.com" target="_blank" class="text-light" title="Instagram">
+                            <i class="bi bi-instagram"></i>
+                        </a>
+                        <a href="https://twitter.com" target="_blank" class="text-light" title="Twitter">
+                            <i class="bi bi-twitter-x"></i>
+                        </a>
+                        <a href="https://tiktok.com" target="_blank" class="text-light" title="TikTok">
+                            <i class="bi bi-tiktok"></i>
+                        </a>
+                        <a href="https://youtube.com" target="_blank" class="text-light" title="YouTube">
+                            <i class="bi bi-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna 2: Enlaces Rápidos -->
+            <div class="col-lg-2 col-md-6">
+                <h6 class="mb-3 fw-semibold">Comprar</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <a th:href="@{/}" class="text-white-50 text-decoration-none">
+                            <i class="bi bi-chevron-right small"></i> Inicio
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a th:href="@{/productos}" class="text-white-50 text-decoration-none">
+                            <i class="bi bi-chevron-right small"></i> Todos los Productos
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a th:href="@{/productos(genero='hombre')}" class="text-white-50 text-decoration-none">
+                            <i class="bi bi-chevron-right small"></i> Hombres
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a th:href="@{/productos(genero='mujer')}" class="text-white-50 text-decoration-none">
+                            <i class="bi bi-chevron-right small"></i> Mujeres
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a th:href="@{/productos(genero='nino')}" class="text-white-50 text-decoration-none">
+                            <i class="bi bi-chevron-right small"></i> Niños
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a th:href="@{/ofertas}" class="text-warning text-decoration-none">
+                            <i class="bi bi-fire small"></i> Ofertas
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Columna 3: Atención al Cliente -->
+            <div class="col-lg-3 col-md-6">
+                <h6 class="mb-3 fw-semibold">Atención al Cliente</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <a th:href="@{/mi-cuenta}" class="text-white-50 text-decoration-none">
+                            <i class="bi bi-chevron-right small"></i> Mi Cuenta
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a th:href="@{/pedidos/rastrear}" class="text-white-50 text-decoration-none">
+                            <i class="bi bi-chevron-right small"></i> Rastrear Pedido
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#" class="text-white-50 text-decoration-none">
+                            <i class="bi bi-chevron-right small"></i> Preguntas Frecuentes
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#" class="text-white-50 text-decoration-none">
+                            <i class="bi bi-chevron-right small"></i> Envíos y Devoluciones
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#" class="text-white-50 text-decoration-none">
+                            <i class="bi bi-chevron-right small"></i> Guía de Tallas
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#" class="text-white-50 text-decoration-none">
+                            <i class="bi bi-chevron-right small"></i> Contacto
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Columna 4: Contacto y Newsletter -->
+            <div class="col-lg-3 col-md-6">
+                <h6 class="mb-3 fw-semibold">Contacto</h6>
+                <ul class="list-unstyled small mb-4">
+                    <li class="mb-3 d-flex align-items-start">
+                        <i class="bi bi-geo-alt-fill text-danger me-2 mt-1"></i>
+                        <span class="text-white-50">
+                            Av. Principal 123<br>
+                            Lima 15001, Perú
+                        </span>
+                    </li>
+                    <li class="mb-3">
+                        <i class="bi bi-telephone-fill text-danger me-2"></i>
+                        <a href="tel:+51999888777" class="text-white-50 text-decoration-none">
+                            +51 999 888 777
+                        </a>
+                    </li>
+                    <li class="mb-3">
+                        <i class="bi bi-envelope-fill text-danger me-2"></i>
+                        <a href="mailto:info@novashop.com" class="text-white-50 text-decoration-none">
+                            info@novashop.com
+                        </a>
+                    </li>
+                    <li class="mb-3">
+                        <i class="bi bi-clock-fill text-danger me-2"></i>
+                        <span class="text-white-50">Lun - Vie: 9:00 - 18:00</span>
+                    </li>
+                </ul>
+
+                <!-- Newsletter Compacto -->
+                <div>
+                    <h6 class="small mb-2 fw-semibold">Newsletter</h6>
+                    <p class="small text-white-50 mb-2">Recibe ofertas exclusivas</p>
+                    <form class="input-group input-group-sm">
+                        <input type="email"
+                               class="form-control"
+                               placeholder="Tu email"
+                               style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white;">
+                        <button class="btn btn-danger" type="submit">
+                            <i class="bi bi-send"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Separador -->
+    <hr class="my-0" style="opacity: 0.1;">
+
+    <!-- Copyright y Métodos de Pago -->
+    <div class="container py-4">
+        <div class="row align-items-center g-3">
+            <!-- Copyright -->
+            <div class="col-lg-6 text-center text-lg-start">
+                <p class="small mb-2 text-white-50">
+                    &copy; 2025 <strong class="text-white">NovaShop</strong>.
+                    Todos los derechos reservados.
+                </p>
+                <p class="small mb-0">
+                    <a href="#" class="text-white-50 text-decoration-none me-3 hover-underline">
+                        Términos y Condiciones
+                    </a>
+                    <span class="text-white-50">|</span>
+                    <a href="#" class="text-white-50 text-decoration-none ms-3 hover-underline">
+                        Política de Privacidad
+                    </a>
+                    <span class="text-white-50 ms-3">|</span>
+                    <a href="#" class="text-white-50 text-decoration-none ms-3 hover-underline">
+                        Cookies
+                    </a>
+                </p>
+            </div>
+
+            <!-- Métodos de Pago -->
+            <div class="col-lg-6 text-center text-lg-end">
+                <p class="small text-white-50 mb-2">Métodos de pago seguros:</p>
+                <div class="d-flex justify-content-center justify-content-lg-end gap-3 align-items-center">
+                    <div class="bg-white rounded p-2" style="width: 50px; height: 35px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-credit-card-2-front text-dark fs-5"></i>
+                    </div>
+                    <div class="bg-white rounded p-2" style="width: 50px; height: 35px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-paypal text-primary fs-5"></i>
+                    </div>
+                    <div class="bg-white rounded p-2" style="width: 50px; height: 35px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-cash text-success fs-5"></i>
+                    </div>
+                    <div class="bg-white rounded p-2" style="width: 50px; height: 35px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-bank text-danger fs-5"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botón Scroll to Top -->
+    <button onclick="scrollToTop()"
+            id="btnScrollTop"
+            class="btn btn-danger rounded-circle position-fixed bottom-0 end-0 m-4 shadow-lg"
+            style="width: 50px; height: 50px; display: none; z-index: 1000;"
+            title="Volver arriba">
+        <i class="bi bi-arrow-up"></i>
+    </button>
+</footer>
+
+<!-- Script para Scroll to Top -->
+<script>
+    // Mostrar/ocultar botón scroll to top
+    window.onscroll = function() {
+        const btn = document.getElementById('btnScrollTop');
+        if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+            btn.style.display = "block";
+        } else {
+            btn.style.display = "none";
+        }
+    };
+
+    // Función scroll to top suave
+    function scrollToTop() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
+
+    // Auto-cerrar alertas después de 5 segundos
+    document.addEventListener('DOMContentLoaded', function() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+            setTimeout(function() {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }, 5000);
+        });
+    });
+</script>
+
+</body>
+</html>
