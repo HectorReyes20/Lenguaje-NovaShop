@@ -5,7 +5,7 @@
 
 <nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
 
-    <div class="container">
+    <div class="container-fluid" style="margin-right: 100px; margin-left: 100px" >
         <!-- Logo -->
 
         <a class="navbar-brand fw-bold" th:href="@{/}">
@@ -126,7 +126,7 @@
                        role="button"
                        data-bs-toggle="dropdown">
                         <i class="bi bi-person-circle fs-5 me-2"></i>
-                        <span class="d-none d-lg-inline" sec:authentication="name">Usuario</span>
+                        <span class="d-none d-lg-inline navbar-username" sec:authentication="name">Usuario</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li>

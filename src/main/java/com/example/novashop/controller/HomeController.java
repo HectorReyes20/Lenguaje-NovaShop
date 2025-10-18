@@ -47,7 +47,7 @@ public class HomeController {
         return "index";
     }
 
-    @GetMapping("/productos")
+    //@GetMapping("/productos")
     public String listarProductos(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(required = false) Long categoria,
@@ -115,7 +115,7 @@ public class HomeController {
         return "productos/detalle";
     }
 
-    @GetMapping("/ofertas")
+    //@GetMapping("/ofertas")
     public String ofertas(
             @RequestParam(defaultValue = "0") int page,
             Model model) {
