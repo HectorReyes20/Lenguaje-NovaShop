@@ -937,3 +937,125 @@ footer .d-flex.gap-2 i:hover {
     color: #a0aec0;
     box-shadow: none;
 }
+/* ============================================ */
+/* PÁGINA DE OFERTAS (TEMÁTICA MES MORADO) */
+/* ============================================ */
+
+.ofertas-header-nuevo {
+    padding: 1.5rem 0;
+    margin-bottom: 2rem;
+    /* Borde inferior temático (morado) */
+    border-bottom: 4px solid #c084fc; /* Morado claro */
+}
+
+.ofertas-header-nuevo h1 {
+    color: #581c87; /* Morado oscuro */
+    font-weight: 900; /* Heredado de Playfair Display */
+}
+
+.ofertas-header-nuevo .ofertas-icono-morado {
+    font-size: 2.5rem;
+    vertical-align: middle;
+    display: inline-block;
+    /* Animación sutil de pulso */
+    animation: pulse-morado 2s infinite;
+}
+
+@keyframes pulse-morado {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+
+/* Alerta personalizada para el cupón */
+.alert-purple-themed {
+    background-color: #f3e8ff; /* Fondo lavanda muy pálido */
+    border: 1px solid #d8b4fe; /* Borde lavanda */
+    color: #581c87; /* Texto morado oscuro */
+    border-radius: 12px;
+}
+
+.alert-purple-themed .alert-link {
+    color: #581c87;
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+/* Aseguramos que el cupón dentro de la alerta se vea bien.
+   Reutiliza el estilo .flash-coupon pero lo ajusta.
+*/
+.alert-purple-themed .flash-coupon {
+     background: #e9d5ff;
+     color: #3b0764;
+     border: 2px dashed #3b0764;
+     padding: 0.2rem 0.5rem; /* Más pequeño para que quepa en línea */
+     font-size: 0.9em;
+     vertical-align: middle;
+}
+/* ============================================ */
+/* SECCIÓN FLASH SALE (NUEVO DISEÑO - MES MORADO) */
+/* ============================================ */
+
+.flash-sale-section {
+    /* Fondo temático "Mes Morado" */
+    background: linear-gradient(135deg, rgba(55, 26, 100, 0.85), rgba(88, 38, 150, 0.85)),
+                linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)),
+                url('https://images.pexels.com/photos/3755706/pexels-photo-3755706.jpeg');
+    background-size: cover;
+    background-position: center 30%;
+    /* Efecto Parallax: la imagen se queda fija */
+    background-attachment: fixed;
+    border-radius: 20px; /* Bordes redondeados */
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+}
+
+/* Cajas del contador */
+.flash-countdown {
+    font-family: 'Inter', sans-serif;
+    align-items: center;
+}
+
+.countdown-box {
+    /* Efecto "Glassmorphism" (cristal) */
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 1rem;
+    /* Ajustamos el ancho para 4 cajas */
+    width: 85px;
+    backdrop-filter: blur(5px);
+}
+
+.countdown-box .countdown-number {
+    font-size: 2.2rem; /* Un poco más pequeño para que quepa */
+    font-weight: 700;
+    display: block;
+    line-height: 1;
+    color: #fff;
+}
+
+.countdown-box .countdown-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: 1px;
+}
+
+.countdown-separator {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.5);
+    padding: 0 0.4rem;
+}
+
+/* Estilo del cupón temático */
+.flash-coupon {
+    background: #e9d5ff; /* Morado muy claro (lavanda) */
+    color: #3b0764; /* Morado oscuro */
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: 700;
+    border: 2px dashed #3b0764;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 1px;
+}

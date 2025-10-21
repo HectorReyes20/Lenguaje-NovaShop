@@ -193,27 +193,57 @@
 <!-- ========================================== -->
 <!-- BANNER PROMOCIONAL -->
 <!-- ========================================== -->
-<section class="py-4 my-3" style="background: linear-gradient(135deg, #1e40af 0%, #0f172a 100%);">
-    <div class="container py-3">
-        <div class="row align-items-center text-white g-4">
-            <div class="col-lg-8" data-aos="fade-right">
-                <h2 class="display-5 fw-bold mb-4">
-                    <i class="bi bi-lightning-fill text-warning me-2"></i>
-                    Flash Sale - 48 Horas
-                </h2>
-                <p class="lead mb-4">
-                    Hasta 60% de descuento en productos seleccionados.
-                    No dejes pasar esta oportunidad única.
-                </p>
-                <a th:href="@{/ofertas}" class="btn btn-light btn-lg px-5">
-                    Ver Ofertas Flash <i class="bi bi-arrow-right ms-2"></i>
-                </a>
-            </div>
+<section class="flash-sale-section text-white text-center my-5">
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-md-10 col-lg-8 mx-auto">
 
-            <div class="col-lg-4 text-center" data-aos="fade-left">
-                <div class="p-4">
-                    <h1 class="display-1 fw-bold mb-0">60%</h1>
-                    <p class="fs-4 mb-0">OFF</p>
+                <h5 class="text-warning fw-bold mb-3" style="letter-spacing: 1px;">
+                    💜 ESPECIAL MES MORADO 💜
+                </h5>
+
+                <h1 class="display-2" style="font-family: 'Playfair Display', serif; font-weight: 900;">
+                    ¡Ofertas de Octubre!
+                </h1>
+
+                <p class="lead mb-4">
+                    Celebra con nosotros y obtén un <strong class="fw-bold text-warning">15% DE DESCUENTO</strong>
+                    en todas las ofertas de la web.
+                </p>
+
+                <div id="countdown-container" class="flash-countdown d-flex justify-content-center gap-2 gap-sm-3 my-4">
+                    <div class="countdown-box">
+                        <span class="countdown-number" id="countdown-days">--</span>
+                        <span class="countdown-label">Días</span>
+                    </div>
+                    <div class="countdown-separator">:</div>
+                    <div class="countdown-box">
+                        <span class="countdown-number" id="countdown-hours">--</span>
+                        <span class="countdown-label">Horas</span>
+                    </div>
+                    <div class="countdown-separator">:</div>
+                    <div class="countdown-box">
+                        <span class="countdown-number" id="countdown-mins">--</span>
+                        <span class="countdown-label">Min</span>
+                    </div>
+                    <div class="countdown-separator d-none d-sm-block">:</div> <div class="countdown-box">
+                    <span class="countdown-number" id="countdown-secs">--</span>
+                    <span class="countdown-label">Seg</span>
+                </div>
+                </div>
+
+                <div id="expired-message" class="d-none">
+                    <h3 class="text-danger">¡La oferta ha terminado!</h3>
+                </div>
+
+                <p class="h5 mb-4">Usa el cupón: <strong class="flash-coupon">MILAGROS15</strong></p>
+
+                <div class="d-grid d-sm-block">
+                    <a th:href="@{/ofertas}" class="btn btn-warning btn-lg rounded-pill shadow-lg"
+                       style="padding: 0.8rem 2.5rem; font-weight: 600;">
+                        <i class="bi bi-arrow-right-circle me-2"></i>
+                        Ver Todas las Ofertas
+                    </a>
                 </div>
             </div>
         </div>
@@ -549,7 +579,64 @@
 <!-- SCRIPTS -->
 <!-- ========================================== -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+<script>
+    // Función que se ejecuta cuando el contenido de la página está listo
+    document.addEventListener('DOMContentLoaded', function() {
 
+        // --- CONFIGURACIÓN DE LA FECHA LÍMITE ---
+        // La promoción termina el 31 de Octubre a las 23:59:59
+        // (JavaScript cuenta los meses desde 0-11, así que 9 es Octubre)
+        // Usamos el año 2025 basado en la fecha actual.
+        const deadline = new Date(2025, 9, 31, 23, 59, 59).getTime();
+
+        // Seleccionamos los elementos del HTML
+        const daysEl = document.getElementById('countdown-days');
+        const hoursEl = document.getElementById('countdown-hours');
+        const minsEl = document.getElementById('countdown-mins');
+        const secsEl = document.getElementById('countdown-secs');
+
+        const countdownContainer = document.getElementById('countdown-container');
+        const expiredMessage = document.getElementById('expired-message');
+
+        // Función para añadir un '0' delante si el número es menor a 10
+        function pad(number) {
+            return number < 10 ? '0' + number : number;
+        }
+
+        // Actualizar el contador cada segundo
+        const interval = setInterval(function() {
+            // Fecha y hora actual
+            const now = new Date().getTime();
+
+            // Distancia entre la fecha límite y ahora
+            const distance = deadline - now;
+
+            // Si el tiempo se acabó
+            if (distance < 0) {
+                clearInterval(interval); // Detener el contador
+                countdownContainer.classList.add('d-none'); // Ocultar el contador
+                expiredMessage.classList.remove('d-none'); // Mostrar mensaje de expirado
+                return;
+            }
+
+            // Cálculos de tiempo
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            // Actualizar el HTML
+            daysEl.innerHTML = pad(days);
+            hoursEl.innerHTML = pad(hours);
+            minsEl.innerHTML = pad(minutes);
+            secsEl.innerHTML = pad(seconds);
+
+        }, 1000); // 1000ms = 1 segundo
+    });
+</script>
 <!-- AOS Animation Library -->
 <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>

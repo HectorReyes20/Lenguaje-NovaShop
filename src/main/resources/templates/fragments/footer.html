@@ -3,14 +3,13 @@
 <body>
 
 <footer th:fragment="footer" class="bg-dark text-light mt-5">
-    <!-- Sección Principal del Footer -->
     <div class="container py-5">
         <div class="row g-4">
-            <!-- Columna 1: About / Marca -->
             <div class="col-lg-4 col-md-6">
                 <div class="mb-4">
                     <h4 class="mb-3 fw-bold">
-                        <i class="bi bi-bag-heart-fill"></i> NovaShop
+                        <img src="/images/logo.png" alt="" class="logo-icon">
+                        </i> NovaShop
                     </h4>
                     <p class="text-white-50 mb-4">
                         Tu destino para la moda que inspira. Ofrecemos las últimas tendencias
@@ -18,7 +17,6 @@
                         y seguros a todo el Perú.
                     </p>
 
-                    <!-- Redes Sociales -->
                     <h6 class="mb-3 fw-semibold">Síguenos</h6>
                     <div class="d-flex gap-3">
                         <a href="https://facebook.com" target="_blank" class="text-light" title="Facebook">
@@ -40,7 +38,6 @@
                 </div>
             </div>
 
-            <!-- Columna 2: Enlaces Rápidos -->
             <div class="col-lg-2 col-md-6">
                 <h6 class="mb-3 fw-semibold">Comprar</h6>
                 <ul class="list-unstyled">
@@ -77,7 +74,6 @@
                 </ul>
             </div>
 
-            <!-- Columna 3: Atención al Cliente -->
             <div class="col-lg-3 col-md-6">
                 <h6 class="mb-3 fw-semibold">Atención al Cliente</h6>
                 <ul class="list-unstyled">
@@ -114,7 +110,6 @@
                 </ul>
             </div>
 
-            <!-- Columna 4: Contacto y Newsletter -->
             <div class="col-lg-3 col-md-6">
                 <h6 class="mb-3 fw-semibold">Contacto</h6>
                 <ul class="list-unstyled small mb-4">
@@ -133,8 +128,8 @@
                     </li>
                     <li class="mb-3">
                         <i class="bi bi-envelope-fill text-danger me-2"></i>
-                        <a href="mailto:info@novashop.com" class="text-white-50 text-decoration-none">
-                            info@novashop.com
+                        <a href="mailto:contacto@novashop.com" class="text-white-50 text-decoration-none">
+                            contacto@novashop.com
                         </a>
                     </li>
                     <li class="mb-3">
@@ -143,7 +138,6 @@
                     </li>
                 </ul>
 
-                <!-- Newsletter Compacto -->
                 <div>
                     <h6 class="small mb-2 fw-semibold">Newsletter</h6>
                     <p class="small text-white-50 mb-2">Recibe ofertas exclusivas</p>
@@ -161,13 +155,10 @@
         </div>
     </div>
 
-    <!-- Separador -->
     <hr class="my-0" style="opacity: 0.1;">
 
-    <!-- Copyright y Métodos de Pago -->
     <div class="container py-4">
         <div class="row align-items-center g-3">
-            <!-- Copyright -->
             <div class="col-lg-6 text-center text-lg-start">
                 <p class="small mb-2 text-white-50">
                     &copy; 2025 <strong class="text-white">NovaShop</strong>.
@@ -188,7 +179,6 @@
                 </p>
             </div>
 
-            <!-- Métodos de Pago -->
             <div class="col-lg-6 text-center text-lg-end">
                 <p class="small text-white-50 mb-2">Métodos de pago seguros:</p>
                 <div class="d-flex justify-content-center justify-content-lg-end gap-3 align-items-center">
@@ -209,7 +199,6 @@
         </div>
     </div>
 
-    <!-- Botón Scroll to Top -->
     <button onclick="scrollToTop()"
             id="btnScrollTop"
             class="btn btn-danger rounded-circle position-fixed bottom-0 end-0 m-4 shadow-lg"
@@ -219,7 +208,6 @@
     </button>
 </footer>
 
-<!-- Script para Scroll to Top -->
 <script>
     // Mostrar/ocultar botón scroll to top
     window.onscroll = function() {

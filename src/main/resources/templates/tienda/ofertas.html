@@ -12,38 +12,6 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
 
-    <style>
-        .ofertas-header {
-            background: var(--gradient-2);
-            padding: 3rem 0;
-            margin-bottom: 3rem;
-            color: white;
-            text-align: center;
-            border-radius: 0 0 30px 30px;
-            box-shadow: var(--shadow-lg);
-        }
-        .ofertas-header h1 {
-            font-size: clamp(2.5rem, 5vw, 4rem);
-            font-weight: 900;
-        }
-        .ofertas-header p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-        }
-        /* Animación sutil para las tarjetas de oferta */
-        .product-card.oferta-card:hover {
-            transform: translateY(-10px) scale(1.03); /* Un poco más de énfasis */
-            box-shadow: 0 15px 35px rgba(239, 68, 68, 0.2); /* Sombra rojiza */
-        }
-        .product-card.oferta-card .product-badge .badge {
-            background: linear-gradient(135deg, #ef4444 0%, #f59e0b 100%); /* Gradiente rojo-naranja */
-            animation: pulse-oferta 1.5s infinite;
-        }
-        @keyframes pulse-oferta {
-            0%, 100% { transform: scale(1); box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3); }
-            50% { transform: scale(1.1); box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4); }
-        }
-    </style>
 </head>
 <body>
 
@@ -51,14 +19,24 @@
 
 <div th:replace="~{fragments/navbar :: alerts}"></div>
 
-<div class="ofertas-header">
-    <div class="container">
-        <h1 th:text="${tituloPagina}">🔥 ¡Ofertas Imperdibles!</h1>
-        <p>Aprovecha los mejores descuentos antes de que se acaben.</p>
-    </div>
-</div>
-
 <main class="content-wrapper container my-5">
+
+    <div class="ofertas-header-nuevo text-center mb-4">
+        <h1 class="display-4">
+            <span class="ofertas-icono-morado me-2">💜</span>
+            <span style="font-weight: 900;">¡Ofertas del Mes Morado!</span>
+        </h1>
+        <p class="lead text-muted">
+            Todos los descuentos especiales de Octubre en un solo lugar.
+        </p>
+    </div>
+
+    <div class="alert alert-purple-themed text-center mb-5 shadow-sm">
+        <i class="bi bi-ticket-perforated-fill me-2"></i>
+        Recuerda usar tu cupón <strong class="flash-coupon mx-1">MILAGROS15</strong> al finalizar tu compra.
+        <a th:href="@{/}" class="alert-link">Ver promoción</a>.
+    </div>
+
 
     <div th:if="${paginaProductos == null || paginaProductos.empty}" class="alert alert-info text-center shadow-sm" style="border-radius: 15px;">
         <i class="bi bi-emoji-frown fs-4 me-2"></i>
