@@ -17,7 +17,7 @@ import java.util.Optional;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
-    private final PasswordEncoder passwordEncoder; // AGREGAR ESTO
+    private final PasswordEncoder passwordEncoder; //
 
     public List<Usuario> obtenerTodos() {
         return usuarioRepository.findAll();

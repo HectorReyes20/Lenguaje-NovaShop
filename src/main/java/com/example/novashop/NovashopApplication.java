@@ -13,7 +13,7 @@ public class NovashopApplication {
 		System.out.println("\n" +
 				"╔══════════════════════════════════════════════════════════╗\n" +
 				"║                                                          ║\n" +
-				"║            🛍️  NovaShop Application Started  🛍️          ║\n" +
+				"║            🛍️  NovaShop Applicacion Inicio  🛍️          ║\n" +
 				"║                                                          ║\n" +
 				"║  URL: http://localhost:8080                              ║\n" +
 				"║  Actuator: http://localhost:8080/actuator                ║\n" +

@@ -53,9 +53,7 @@ public class SecurityConfig {
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/uploads/**").permitAll()
                         .requestMatchers("/webjars/**").permitAll()
 
-                        // API pública (si quieres que sea accesible)
-                        .requestMatchers("/api/productos/**").permitAll()
-                        .requestMatchers("/api/categorias/**").permitAll()
+
 
                         // Rutas protegidas para usuarios autenticados
                         .requestMatchers("/carrito/**").authenticated()
@@ -64,10 +62,7 @@ public class SecurityConfig {
                         .requestMatchers("/mi-cuenta/**").authenticated()
                         .requestMatchers("/favoritos/**").authenticated()
 
-                        // API protegida
-                        .requestMatchers("/api/carrito/**").authenticated()
-                        .requestMatchers("/api/pedidos/**").authenticated()
-                        .requestMatchers("/api/favoritos/**").authenticated()
+
 
                         // Rutas de administrador
                         .requestMatchers("/admin/**").hasRole("ADMIN")

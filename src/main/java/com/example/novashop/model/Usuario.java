@@ -36,11 +36,11 @@ public class Usuario {
     private String email;
 
     @NotBlank(message = "La contraseña es obligatoria")
-    @Size(min = 6, max = 255)
+    @Size(min = 6, max = 15)
     @Column(nullable = false)
     private String password;
 
-    @Size(max = 20)
+    @Size(max = 9)
     @Column(length = 20)
     private String telefono;
 
