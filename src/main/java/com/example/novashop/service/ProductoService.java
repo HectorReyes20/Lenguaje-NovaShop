@@ -24,7 +24,7 @@ public class ProductoService {
     private final ResenaRepository resenaRepository;
 
     public List<Producto> obtenerTodos() {
-        return productoRepository.findAll();
+        return productoRepository.findAllConVariantes();
     }
 
     public Page<Producto> obtenerTodosPaginados(Pageable pageable) {
@@ -98,4 +98,5 @@ public class ProductoService {
                 .findByProductoIdProductoAndStockGreaterThan(idProducto, 0);
         return !variantes.isEmpty();
     }
+
 }

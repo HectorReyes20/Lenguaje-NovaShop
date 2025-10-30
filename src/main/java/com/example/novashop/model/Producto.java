@@ -2,6 +2,7 @@ package com.example.novashop.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
@@ -68,6 +69,7 @@ public class Producto {
     // Relaciones
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
+    @BatchSize(size = 100)
     private List<VarianteProducto> variantes = new ArrayList<>();
 
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)

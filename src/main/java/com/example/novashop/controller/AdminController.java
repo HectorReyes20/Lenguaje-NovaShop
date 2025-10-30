@@ -173,126 +173,346 @@ public class AdminController {
         try {
             boolean esNuevo = (producto.getIdProducto() == null);
 
-            // 1. Guardar el producto base
-            // (Quitamos las variantes para guardarlas por separado)
+            // ========================================
+            // VALIDACIÓN 1: Datos básicos del producto
+            // ========================================
+            if (producto.getNombre() == null || producto.getNombre().trim().isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "El nombre del producto es obligatorio");
+                return redirigirFormulario(esNuevo, producto.getIdProducto());
+            }
+
+            if (producto.getPrecioBase() == null || producto.getPrecioBase().compareTo(BigDecimal.ZERO) <= 0) {
+                redirectAttributes.addFlashAttribute("error", "El precio base debe ser mayor a 0");
+                return redirigirFormulario(esNuevo, producto.getIdProducto());
+            }
+
+            if (producto.getCategoria() == null || producto.getCategoria().getIdCategoria() == null) {
+                redirectAttributes.addFlashAttribute("error", "Debes seleccionar una categoría");
+                return redirigirFormulario(esNuevo, producto.getIdProducto());
+            }
+
+            // ========================================
+            // VALIDACIÓN 2: Variantes (al menos 1)
+            // ========================================
             List<VarianteProducto> variantes = producto.getVariantes();
-            producto.setVariantes(null);
 
-            Producto productoGuardado = productoService.guardar(producto);
+            if (variantes == null || variantes.isEmpty()) {
+                redirectAttributes.addFlashAttribute("error",
+                        "Debes agregar al menos una variante (talla, color, stock)");
+                return redirigirFormulario(esNuevo, producto.getIdProducto());
+            }
 
-            // 2. Procesar variantes
-            if (variantes != null && !variantes.isEmpty()) {
-                for (VarianteProducto variante : variantes) {
-                    variante.setProducto(productoGuardado); // Asignar el producto guardado
-                    varianteService.guardar(variante);
+            // ========================================
+            // VALIDACIÓN 3: Datos completos de variantes
+            // ========================================
+            for (int i = 0; i < variantes.size(); i++) {
+                VarianteProducto variante = variantes.get(i);
+
+                // Validar talla
+                if (variante.getTalla() == null || variante.getTalla().trim().isEmpty()) {
+                    redirectAttributes.addFlashAttribute("error",
+                            "La variante #" + (i+1) + " debe tener una talla");
+                    return redirigirFormulario(esNuevo, producto.getIdProducto());
+                }
+
+                // Validar color
+                if (variante.getColor() == null || variante.getColor().trim().isEmpty()) {
+                    redirectAttributes.addFlashAttribute("error",
+                            "La variante #" + (i+1) + " debe tener un color");
+                    return redirigirFormulario(esNuevo, producto.getIdProducto());
+                }
+
+                // Validar SKU
+                if (variante.getCodigoSku() == null || variante.getCodigoSku().trim().isEmpty()) {
+                    redirectAttributes.addFlashAttribute("error",
+                            "La variante #" + (i+1) + " debe tener un código SKU");
+                    return redirigirFormulario(esNuevo, producto.getIdProducto());
+                }
+
+                // Validar SKU único (no duplicado)
+                if (!esNuevo || variante.getIdVariante() != null) {
+                    // Al editar, verificar que el SKU no esté en uso por OTRA variante
+                    Optional<VarianteProducto> skuExistente = varianteService.buscarPorSku(variante.getCodigoSku());
+                    if (skuExistente.isPresent() &&
+                            !skuExistente.get().getIdVariante().equals(variante.getIdVariante())) {
+                        redirectAttributes.addFlashAttribute("error",
+                                "El SKU '" + variante.getCodigoSku() + "' ya está en uso");
+                        return redirigirFormulario(esNuevo, producto.getIdProducto());
+                    }
+                }
+
+                // Validar stock
+                if (variante.getStock() == null || variante.getStock() < 0) {
+                    redirectAttributes.addFlashAttribute("error",
+                            "La variante #" + (i+1) + " debe tener un stock válido (mínimo 0)");
+                    return redirigirFormulario(esNuevo, producto.getIdProducto());
                 }
             }
+
+            // ========================================
+            // VALIDACIÓN 4: Validar precio de oferta (si existe)
+            // ========================================
+            if (producto.getPrecioOferta() != null &&
+                    producto.getPrecioOferta().compareTo(producto.getPrecioBase()) >= 0) {
+                redirectAttributes.addFlashAttribute("error",
+                        "El precio de oferta debe ser menor al precio base");
+                return redirigirFormulario(esNuevo, producto.getIdProducto());
+            }
+
+            // ========================================
+            // VALIDACIÓN 5: Imágenes (al menos 1)
+            // Solo para productos nuevos o si se eliminan todas las existentes
+            // ========================================
+            boolean tieneImagenesNuevas = nuevasImagenes != null && nuevasImagenes.length > 0 &&
+                    Arrays.stream(nuevasImagenes).anyMatch(img -> !img.isEmpty());
+
+            if (!esNuevo) {
+                // Al editar: verificar que no se quede sin imágenes
+                List<ImagenProducto> imagenesActuales = imagenService.obtenerPorProducto(producto.getIdProducto());
+                int cantidadAEliminar = 0;
+
+                if (imagenesAEliminar != null && !imagenesAEliminar.isEmpty()) {
+                    cantidadAEliminar = imagenesAEliminar.split(",").length;
+                }
+
+                int imagenesRestantes = imagenesActuales.size() - cantidadAEliminar;
+
+                if (imagenesRestantes <= 0 && !tieneImagenesNuevas) {
+                    redirectAttributes.addFlashAttribute("error",
+                            "El producto debe tener al menos una imagen");
+                    return redirigirFormulario(esNuevo, producto.getIdProducto());
+                }
+            } else {
+                // Producto nuevo: debe tener al menos 1 imagen
+                if (!tieneImagenesNuevas) {
+                    redirectAttributes.addFlashAttribute("error",
+                            "Debes agregar al menos una imagen al producto");
+                    return redirigirFormulario(esNuevo, producto.getIdProducto());
+                }
+            }
+
+            // ========================================
+            // TODO VALIDADO ✅ - Proceder a guardar
+            // ========================================
+
+            log.info("Guardando producto: {} (Nuevo: {})", producto.getNombre(), esNuevo);
+
+            // 1. Guardar producto base (sin variantes para evitar cascade)
+            producto.setVariantes(null);
+            Producto productoGuardado = productoService.guardar(producto);
+            log.info("Producto guardado con ID: {}", productoGuardado.getIdProducto());
+
+            // 2. Guardar variantes
+            for (VarianteProducto variante : variantes) {
+                variante.setProducto(productoGuardado);
+                varianteService.guardar(variante);
+            }
+            log.info("Guardadas {} variantes", variantes.size());
 
             // 3. Eliminar imágenes marcadas
             if (imagenesAEliminar != null && !imagenesAEliminar.isEmpty()) {
                 String[] idsAEliminar = imagenesAEliminar.split(",");
+                int eliminadas = 0;
+
                 for (String idStr : idsAEliminar) {
                     try {
                         Long idImagen = Long.parseLong(idStr.trim());
                         imagenService.eliminarImagen(idImagen);
+                        eliminadas++;
                     } catch (NumberFormatException e) {
                         log.warn("ID de imagen inválido para eliminar: {}", idStr);
+                    } catch (Exception e) {
+                        log.error("Error al eliminar imagen {}: {}", idStr, e.getMessage());
                     }
                 }
+                log.info("Eliminadas {} imágenes", eliminadas);
             }
 
-            // 4. Procesar nuevas imágenes (usando el método auxiliar)
-            if (nuevasImagenes != null && nuevasImagenes.length > 0) {
-                guardarImagenes(productoGuardado, nuevasImagenes);
+            // 4. Guardar nuevas imágenes
+            if (tieneImagenesNuevas) {
+                int imagenesGuardadas = guardarImagenes(productoGuardado, nuevasImagenes);
+                log.info("Guardadas {} imágenes nuevas", imagenesGuardadas);
             }
 
-            String mensaje = esNuevo ? "Producto creado exitosamente" : "Producto actualizado exitosamente";
+            // ========================================
+            // ÉXITO - Redirigir con mensaje
+            // ========================================
+            String mensaje = esNuevo
+                    ? "Producto '" + productoGuardado.getNombre() + "' creado exitosamente"
+                    : "Producto '" + productoGuardado.getNombre() + "' actualizado exitosamente";
+
             redirectAttributes.addFlashAttribute("mensaje", mensaje);
             return "redirect:/admin/productos";
 
+        } catch (IllegalArgumentException e) {
+            // Errores de validación
+            log.error("Error de validación: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return redirigirFormulario(
+                    producto.getIdProducto() == null,
+                    producto.getIdProducto()
+            );
+
         } catch (Exception e) {
-            log.error("Error al guardar producto: {}", e.getMessage(), e);
-            redirectAttributes.addFlashAttribute("error", "Error al guardar el producto: " + e.getMessage());
-            // Si es nuevo, redirige a 'nuevo', si está editando, redirige a 'editar'
-            if (producto.getIdProducto() == null) {
-                return "redirect:/admin/productos/nuevo";
-            } else {
-                return "redirect:/admin/productos/editar/" + producto.getIdProducto();
-            }
+            // Errores inesperados
+            log.error("Error inesperado al guardar producto: {}", e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("error",
+                    "Ocurrió un error inesperado. Por favor, inténtalo de nuevo.");
+            return redirigirFormulario(
+                    producto.getIdProducto() == null,
+                    producto.getIdProducto()
+            );
+        }
+    }
+    private String redirigirFormulario(boolean esNuevo, Long idProducto) {
+        if (esNuevo) {
+            return "redirect:/admin/productos/nuevo";
+        } else {
+            return "redirect:/admin/productos/editar/" + idProducto;
         }
     }
 
-    // --- MÉTODO eliminarProducto() ACTUALIZADO ---
     @PostMapping("/productos/eliminar/{id}")
     public String eliminarProducto(
             @PathVariable Long id,
             RedirectAttributes redirectAttributes) {
 
         try {
-            // Antes de eliminar el producto, eliminamos sus dependencias
+            // ========================================
+            // PASO 1: Verificar que el producto existe
+            // ========================================
+            Producto producto = productoService.obtenerPorId(id)
+                    .orElseThrow(() -> new RuntimeException("Producto no encontrado con ID: " + id));
+
+            log.info("Iniciando eliminación del producto ID: {} - {}", id, producto.getNombre());
+
+            // ========================================
+            // PASO 2: Eliminar IMÁGENES primero
+            // ========================================
+            // ¿Por qué primero? Porque además de borrar registros de la BD,
+            // también eliminamos los archivos físicos del servidor
+
+            List<ImagenProducto> imagenes = imagenService.obtenerPorProducto(id);
+            log.info("Eliminando {} imágenes del producto", imagenes.size());
+
             imagenService.eliminarPorProductoId(id);
+
+            // ========================================
+            // PASO 3: Eliminar VARIANTES después
+            // ========================================
+            // Las variantes solo tienen registros en BD, no archivos físicos
+
+            List<VarianteProducto> variantes = varianteService.obtenerPorProducto(id);
+            log.info("Eliminando {} variantes del producto", variantes.size());
+
             varianteService.eliminarPorProductoId(id);
 
-            // Ahora sí eliminamos el producto
-            productoService.eliminar(id);
+            // ========================================
+            // PASO 4: Ahora SÍ eliminar el PRODUCTO
+            // ========================================
+            // Al no tener dependencias, se elimina sin problemas
 
+            productoService.eliminar(id);
+            log.info("Producto eliminado exitosamente");
+
+            // ========================================
+            // PASO 5: Mensaje de éxito
+            // ========================================
             redirectAttributes.addFlashAttribute("mensaje",
-                    "Producto eliminado exitosamente");
-        } catch (Exception e) {
+                    "Producto '" + producto.getNombre() + "' eliminado exitosamente");
+
+        } catch (RuntimeException e) {
+            // Error controlado (ej: producto no encontrado)
             log.error("Error al eliminar producto: {}", e.getMessage());
             redirectAttributes.addFlashAttribute("error",
                     "No se pudo eliminar el producto: " + e.getMessage());
+
+        } catch (Exception e) {
+            // Error inesperado (ej: problema de BD, archivos, etc)
+            log.error("Error inesperado al eliminar producto ID {}: {}", id, e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("error",
+                    "Ocurrió un error inesperado al eliminar el producto");
         }
 
         return "redirect:/admin/productos";
     }
-    private void guardarImagenes(Producto producto, MultipartFile[] imagenes) throws IOException {
+    private int guardarImagenes(Producto producto, MultipartFile[] imagenes) throws IOException {
         Path uploadPath = Paths.get(UPLOAD_DIR);
+
+        // Crear directorio si no existe
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
+            log.info("Directorio de uploads creado: {}", uploadPath);
         }
 
-        // Obtenemos el último orden para continuar la secuencia
+        // Obtener el último orden para continuar la secuencia
         int orden = imagenService.obtenerUltimoOrden(producto.getIdProducto()) + 1;
+        int imagenesGuardadas = 0;
 
         for (MultipartFile imagen : imagenes) {
+            // Saltar archivos vacíos
             if (imagen.isEmpty()) {
                 continue;
             }
 
-            // Validaciones (puedes añadir más)
+            // ========================================
+            // VALIDACIÓN: Tipo de archivo
+            // ========================================
             String contentType = imagen.getContentType();
             if (contentType == null || !contentType.startsWith("image/")) {
-                throw new IllegalArgumentException("Solo se permiten archivos de imagen");
-            }
-            if (imagen.getSize() > 5 * 1024 * 1024) { // 5MB
-                throw new IllegalArgumentException("La imagen no debe superar los 5MB");
+                log.warn("Archivo rechazado (no es imagen): {}", imagen.getOriginalFilename());
+                throw new IllegalArgumentException(
+                        "El archivo '" + imagen.getOriginalFilename() + "' no es una imagen válida"
+                );
             }
 
+            // ========================================
+            // VALIDACIÓN: Tamaño de archivo (5MB máximo)
+            // ========================================
+            long maxSize = 5 * 1024 * 1024; // 5MB en bytes
+            if (imagen.getSize() > maxSize) {
+                log.warn("Archivo rechazado (tamaño excedido): {} - {} bytes",
+                        imagen.getOriginalFilename(), imagen.getSize());
+                throw new IllegalArgumentException(
+                        "La imagen '" + imagen.getOriginalFilename() +
+                                "' excede el tamaño máximo de 5MB"
+                );
+            }
+
+            // ========================================
+            // GUARDAR: Archivo físico
+            // ========================================
             String nombreOriginal = imagen.getOriginalFilename();
             String extension = "";
+
             if (nombreOriginal != null && nombreOriginal.contains(".")) {
                 extension = nombreOriginal.substring(nombreOriginal.lastIndexOf("."));
             }
+
+            // Generar nombre único: UUID + extensión
             String nombreArchivo = UUID.randomUUID().toString() + extension;
-
             Path rutaArchivo = uploadPath.resolve(nombreArchivo);
+
             Files.copy(imagen.getInputStream(), rutaArchivo, StandardCopyOption.REPLACE_EXISTING);
+            log.info("Archivo guardado: {}", nombreArchivo);
 
-            // Crear registro en base de datos
-            ImagenProducto productoImagen = new ImagenProducto ();
-            productoImagen.setProducto(producto);
-            productoImagen.setUrlImagen("/uploads/productos/" + nombreArchivo); // URL relativa
-            productoImagen.setOrden(orden++);
-
-            // Marcar como principal si es la primera imagen (y no hay otras)
-            if (orden == 1) {
-                productoImagen.setEsPrincipal(true);
-            }
+            // ========================================
+            // GUARDAR: Registro en base de datos
+            // ========================================
+            ImagenProducto productoImagen = ImagenProducto.builder()
+                    .producto(producto)
+                    .urlImagen("/uploads/productos/" + nombreArchivo)
+                    .orden(orden++)
+                    .esPrincipal(orden == 1) // La primera imagen es principal
+                    .build();
 
             imagenService.guardar(productoImagen);
+            imagenesGuardadas++;
         }
+
+        return imagenesGuardadas;
     }
+
 
     /**
      * Gestión de Pedidos
