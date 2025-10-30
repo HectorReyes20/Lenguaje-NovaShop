@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">>
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${producto.idProducto != null ? 'Editar Producto' : 'Nuevo Producto'} + ' - Admin'">Producto</title>
+    <link rel="stylesheet" th:href="@{/css/producto-form.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body>
+
+<!-- Topbar -->
+<nav class="admin-topbar">
+    <div class="d-flex align-items-center">
+        <a th:href="@{/admin}" class="admin-logo">
+            <i class="bi bi-shield-check"></i>
+            <span>NovaShop Admin</span>
+        </a>
+    </div>
+
+    <div class="d-flex align-items-center gap-3">
+        <div class="dropdown">
+            <button class="btn btn-link text-dark d-flex align-items-center" data-bs-toggle="dropdown">
+                <i class="bi bi-person-circle fs-4 me-2"></i>
+                <span sec:authentication="name">Admin</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" th:href="@{/}"><i class="bi bi-shop me-2"></i> Ver Tienda</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <form th:action="@{/logout}" method="post">
+                        <button type="submit" class="dropdown-item text-danger">
+                            <i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Sidebar -->
+<aside class="admin-sidebar">
+    <ul class="sidebar-nav">
+        <li class="nav-section-title">Principal</li>
+        <li class="sidebar-nav-item">
+            <a th:href="@{/admin}" class="sidebar-nav-link">
+                <i class="bi bi-speedometer2"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+
+        <li class="nav-section-title">Gestión</li>
+        <li class="sidebar-nav-item">
+            <a th:href="@{/admin/productos}" class="sidebar-nav-link active">
+                <i class="bi bi-box-seam"></i>
+                <span>Productos</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a th:href="@{/admin/categorias}" class="sidebar-nav-link">
+                <i class="bi bi-grid-3x3"></i>
+                <span>Categorías</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a th:href="@{/admin/pedidos}" class="sidebar-nav-link">
+                <i class="bi bi-clipboard-check"></i>
+                <span>Pedidos</span>
+            </a>
+        </li>
+    </ul>
+</aside>
+
+<!-- Main Content -->
+<main class="admin-main">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 fw-bold mb-1"
+                th:text="${producto.idProducto != null ? 'Editar Producto' : 'Nuevo Producto'}">
+                Nuevo Producto
+            </h1>
+            <nav>
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a th:href="@{/admin}">Admin</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/admin/productos}">Productos</a></li>
+                    <li class="breadcrumb-item active"
+                        th:text="${producto.idProducto != null ? 'Editar' : 'Nuevo'}">Nuevo</li>
+                </ol>
+            </nav>
+        </div>
+        <a th:href="@{/admin/productos}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>
+            Volver
+        </a>
+    </div>
+
+    <!-- Formulario -->
+    <form th:action="@{/admin/productos/guardar}"
+          th:object="${producto}"
+          method="post"
+          enctype="multipart/form-data"
+          id="formProducto">
+
+        <input type="hidden" th:field="*{idProducto}">
+
+        <!-- Información Básica -->
+        <div class="content-card">
+            <h5 class="section-title">
+                <i class="bi bi-info-circle me-2"></i>
+                Información Básica
+            </h5>
+
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <label class="form-label">
+                        Nombre del Producto <span class="required">*</span>
+                    </label>
+                    <input type="text"
+                           class="form-control form-control-lg"
+                           th:field="*{nombre}"
+                           placeholder="Ej: Camiseta Polo Clásica"
+                           required>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">
+                        Marca
+                    </label>
+                    <input type="text"
+                           class="form-control"
+                           th:field="*{marca}"
+                           placeholder="Ej: Nike, Adidas...">
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">
+                        Descripción <span class="required">*</span>
+                    </label>
+                    <textarea class="form-control"
+                              th:field="*{descripcion}"
+                              rows="4"
+                              placeholder="Describe las características del producto..."
+                              required></textarea>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">
+                        Categoría <span class="required">*</span>
+                    </label>
+                    <select class="form-select" th:field="*{categoria.idCategoria}" required>
+                        <option value="">Seleccionar categoría</option>
+                        <option th:each="cat : ${categorias}"
+                                th:value="${cat.idCategoria}"
+                                th:text="${cat.nombre}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">
+                        Género
+                    </label>
+                    <select class="form-select" th:field="*{genero}">
+                        <option value="">Seleccionar</option>
+                        <option value="HOMBRE">Hombre</option>
+                        <option value="MUJER">Mujer</option>
+                        <option value="NINO">Niño</option>
+                        <option value="NINA">Niña</option>
+                        <option value="UNISEX">Unisex</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">
+                        Material
+                    </label>
+                    <input type="text"
+                           class="form-control"
+                           th:field="*{material}"
+                           placeholder="Ej: Algodón 100%">
+                </div>
+            </div>
+        </div>
+
+        <!-- Precios -->
+        <div class="content-card">
+            <h5 class="section-title">
+                <i class="bi bi-tag me-2"></i>
+                Precios
+            </h5>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Precio Base <span class="required">*</span>
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text">S/</span>
+                        <input type="number"
+                               class="form-control"
+                               th:field="*{precioBase}"
+                               step="0.01"
+                               min="0"
+                               placeholder="0.00"
+                               required>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Precio de Oferta
+                        <small class="text-muted">(Opcional)</small>
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text">S/</span>
+                        <input type="number"
+                               class="form-control"
+                               th:field="*{precioOferta}"
+                               step="0.01"
+                               min="0"
+                               placeholder="0.00">
+                    </div>
+                    <small class="text-muted">
+                        Dejar vacío si no hay oferta
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Variantes (Tallas, Colores, Stock) -->
+        <div class="content-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="section-title mb-0">
+                    <i class="bi bi-boxes me-2"></i>
+                    Variantes (Tallas, Colores y Stock)
+                </h5>
+                <button type="button" class="btn btn-sm btn-primary" onclick="agregarVariante()">
+                    <i class="bi bi-plus-circle me-1"></i>
+                    Agregar Variante
+                </button>
+            </div>
+
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>
+                <strong>Importante:</strong> Cada variante representa una combinación única de talla y color con su propio stock.
+            </div>
+
+            <div id="variantesContainer">
+                <!-- Variantes existentes (si está editando) -->
+                <div th:each="variante, iterStat : ${producto.variantes}"
+                     class="variante-row"
+                     th:id="'variante-' + ${iterStat.index}">
+
+                    <input type="hidden"
+                           th:name="'variantes[' + ${iterStat.index} + '].idVariante'"
+                           th:value="${variante.idVariante}">
+
+                    <button type="button"
+                            class="btn btn-sm btn-danger btn-remove-variante"
+                            th:onclick="'eliminarVariante(' + ${iterStat.index} + ')'">
+                        <i class="bi bi-trash"></i>
+                    </button>
+
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label small">Talla *</label>
+                            <input type="text"
+                                   class="form-control"
+                                   th:name="'variantes[' + ${iterStat.index} + '].talla'"
+                                   th:value="${variante.talla}"
+                                   placeholder="Ej: M, L, XL"
+                                   required>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label small">Color *</label>
+                            <input type="text"
+                                   class="form-control"
+                                   th:name="'variantes[' + ${iterStat.index} + '].color'"
+                                   th:value="${variante.color}"
+                                   placeholder="Ej: Rojo, Azul"
+                                   required>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label small">Stock *</label>
+                            <input type="number"
+                                   class="form-control"
+                                   th:name="'variantes[' + ${iterStat.index} + '].stock'"
+                                   th:value="${variante.stock}"
+                                   min="0"
+                                   placeholder="0"
+                                   required>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label small">SKU *</label>
+                            <input type="text"
+                                   class="form-control"
+                                   th:name="'variantes[' + ${iterStat.index} + '].codigoSku'"
+                                   th:value="${variante.codigoSku}"
+                                   placeholder="Ej: POL-M-ROJ"
+                                   required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mensaje cuando no hay variantes -->
+                <div class="text-center text-muted py-4"
+                     id="noVariantesMsg"
+                     th:style="${producto.variantes != null && !producto.variantes.isEmpty()} ? 'display:none' : ''">
+                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                    <p>No hay variantes. Haz clic en "Agregar Variante" para comenzar.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Imágenes del Producto -->
+        <div class="content-card">
+            <h5 class="section-title">
+                <i class="bi bi-images me-2"></i>
+                Imágenes del Producto
+            </h5>
+
+            <div class="upload-zone" id="uploadZone">
+                <i class="bi bi-cloud-upload fs-1 text-primary mb-3 d-block"></i>
+                <h6>Arrastra imágenes aquí o haz clic para seleccionar</h6>
+                <p class="text-muted small mb-0">Formatos: JPG, PNG, WEBP (Max 5MB cada una)</p>
+                <input type="file"
+                       id="imagenesInput"
+                       name="nuevasImagenes"
+                       accept="image/*"
+                       multiple
+                       style="display: none;">
+            </div>
+
+            <div class="image-preview-container" id="imagePreviewContainer">
+                <!-- Vista previa de imágenes existentes -->
+                <div class="image-preview" th:each="img, iterStat : ${producto.imagenes}">
+                    <img th:src="${img.urlImagen}" alt="Imagen producto">
+                    <button type="button"
+                            class="remove-btn"
+                            th:onclick="'eliminarImagenExistente(' + ${img.idImagen} + ', this)'">
+                        <i class="bi bi-x"></i>
+                    </button>
+                    <input type="hidden"
+                           th:name="'imagenesExistentes[' + ${iterStat.index} + '].idImagen'"
+                           th:value="${img.idImagen}">
+                </div>
+            </div>
+
+            <!-- Input oculto para registrar imágenes a eliminar -->
+            <input type="hidden" name="imagenesAEliminar" id="imagenesAEliminar" value="">
+        </div>
+
+        <!-- Estado y Configuración -->
+        <div class="content-card">
+            <h5 class="section-title">
+                <i class="bi bi-gear me-2"></i>
+                Estado y Configuración
+            </h5>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Estado <span class="required">*</span>
+                    </label>
+                    <select class="form-select" th:field="*{estado}" required>
+                        <option value="ACTIVO">Activo</option>
+                        <option value="INACTIVO">Inactivo</option>
+                        <option value="AGOTADO">Agotado</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label d-block">
+                        Configuración
+                    </label>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               th:field="*{destacado}"
+                               id="destacado">
+                        <label class="form-check-label" for="destacado">
+                            <i class="bi bi-star text-warning me-1"></i>
+                            Producto Destacado
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="content-card">
+            <div class="d-flex justify-content-between">
+                <a th:href="@{/admin/productos}" class="btn btn-lg btn-outline-secondary">
+                    <i class="bi bi-x-circle me-2"></i>
+                    Cancelar
+                </a>
+
+                <button type="submit" class="btn btn-lg btn-primary">
+                    <i class="bi bi-check-circle me-2"></i>
+                    <span th:text="${producto.idProducto != null ? 'Actualizar Producto' : 'Crear Producto'}">
+                            Guardar
+                        </span>
+                </button>
+            </div>
+        </div>
+    </form>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    let varianteCounter = 0;
+    let imagenesAEliminar = [];
+    let nuevasImagenes = new DataTransfer();
+
+    // Inicializar contador de variantes
+    window.addEventListener('DOMContentLoaded', () => {
+        const variantes = document.querySelectorAll('.variante-row');
+        varianteCounter = variantes.length;
+
+        // Si es un nuevo producto y no hay variantes, agregar una por defecto
+        const isNuevo = !document.querySelector('input[name="idProducto"]').value;
+        if (isNuevo && varianteCounter === 0) {
+            agregarVariante();
+        }
+    });
+
+    // Agregar nueva variante
+    function agregarVariante() {
+        const container = document.getElementById('variantesContainer');
+        const noMsg = document.getElementById('noVariantesMsg');
+
+        if (noMsg) {
+            noMsg.style.display = 'none';
+        }
+
+        const varianteHtml = `
+            <div class="variante-row" id="variante-${varianteCounter}">
+                <button type="button" class="btn btn-sm btn-danger btn-remove-variante"
+                        onclick="eliminarVariante(${varianteCounter})">
+                    <i class="bi bi-trash"></i>
+                </button>
+
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label small">Talla *</label>
+                        <input type="text"
+                               class="form-control"
+                               name="variantes[${varianteCounter}].talla"
+                               placeholder="Ej: M, L, XL"
+                               required>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label small">Color *</label>
+                        <input type="text"
+                               class="form-control"
+                               name="variantes[${varianteCounter}].color"
+                               placeholder="Ej: Rojo, Azul"
+                               required>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label small">Stock *</label>
+                        <input type="number"
+                               class="form-control"
+                               name="variantes[${varianteCounter}].stock"
+                               min="0"
+                               placeholder="0"
+                               value="0"
+                               required>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label small">SKU *</label>
+                        <input type="text"
+                               class="form-control"
+                               name="variantes[${varianteCounter}].codigoSku"
+                               placeholder="Ej: POL-M-ROJ"
+                               required>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        container.insertAdjacentHTML('beforeend', varianteHtml);
+        varianteCounter++;
+    }
+
+    // Eliminar variante
+    function eliminarVariante(id) {
+        const variante = document.getElementById('variante-' + id);
+        if (variante) {
+            variante.remove();
+        }
+
+        // Mostrar mensaje si no hay variantes
+        const container = document.getElementById('variantesContainer');
+        const variantes = container.querySelectorAll('.variante-row');
+        const noMsg = document.getElementById('noVariantesMsg');
+
+        if (variantes.length === 0 && noMsg) {
+            noMsg.style.display = 'block';
+        }
+    }
+
+    // Eliminar imagen existente
+    function eliminarImagenExistente(idImagen, btn) {
+        imagenesAEliminar.push(idImagen);
+        document.getElementById('imagenesAEliminar').value = imagenesAEliminar.join(',');
+        btn.closest('.image-preview').remove();
+    }
+
+    // Sistema de carga de imágenes
+    const uploadZone = document.getElementById('uploadZone');
+    const imagenesInput = document.getElementById('imagenesInput');
+    const previewContainer = document.getElementById('imagePreviewContainer');
+
+    // Click en zona de carga
+    uploadZone.addEventListener('click', () => {
+        imagenesInput.click();
+    });
+
+    // Drag & Drop
+    uploadZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadZone.classList.add('dragover');
+    });
+
+    uploadZone.addEventListener('dragleave', () => {
+        uploadZone.classList.remove('dragover');
+    });
+
+    uploadZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadZone.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        handleFiles(files);
+    });
+
+    // Selección de archivos
+    imagenesInput.addEventListener('change', (e) => {
+        handleFiles(e.target.files);
+    });
+
+    // Procesar archivos
+    function handleFiles(files) {
+        Array.from(files).forEach(file => {
+            if (file.type.startsWith('image/')) {
+                // Validar tamaño (5MB máximo)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert(`La imagen "${file.name}" excede el tamaño máximo de 5MB`);
+                    return;
+                }
+
+                // Agregar archivo al DataTransfer
+                nuevasImagenes.items.add(file);
+
+                // Crear preview
+                const reader = new FileReader();
+
+                reader.onload = (e) => {
+                    const preview = document.createElement('div');
+                    preview.className = 'image-preview';
+                    preview.innerHTML = `
+                        <img src="${e.target.result}" alt="Preview">
+                        <button type="button" class="remove-btn" onclick="eliminarNuevaImagen(this, '${file.name}')">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    `;
+                    previewContainer.appendChild(preview);
+                };
+
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Actualizar el input con las nuevas imágenes
+        imagenesInput.files = nuevasImagenes.files;
+    }
+
+    // Eliminar nueva imagen (antes de enviar)
+    function eliminarNuevaImagen(btn, fileName) {
+        // Crear un nuevo DataTransfer sin el archivo eliminado
+        const dt = new DataTransfer();
+        const files = Array.from(nuevasImagenes.files);
+
+        files.forEach(file => {
+            if (file.name !== fileName) {
+                dt.items.add(file);
+            }
+        });
+
+        nuevasImagenes = dt;
+        imagenesInput.files = nuevasImagenes.files;
+
+        // Eliminar preview
+        btn.closest('.image-preview').remove();
+    }
+
+    // Validación antes de enviar
+    document.getElementById('formProducto').addEventListener('submit', (e) => {
+        const variantes = document.querySelectorAll('.variante-row');
+
+        if (variantes.length === 0) {
+            e.preventDefault();
+            alert('Debes agregar al menos una variante (talla, color y stock)');
+            return false;
+        }
+
+        // Verificar que todas las variantes tengan datos completos
+        let variantesValidas = true;
+        variantes.forEach(variante => {
+            const inputs = variante.querySelectorAll('input[required]');
+            inputs.forEach(input => {
+                if (!input.value.trim()) {
+                    variantesValidas = false;
+                    input.classList.add('is-invalid');
+                }
+            });
+        });
+
+        if (!variantesValidas) {
+            e.preventDefault();
+            alert('Completa todos los campos requeridos de las variantes');
+            return false;
+        }
+    });
+</script>
+</body>
+</html>

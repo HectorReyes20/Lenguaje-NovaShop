@@ -36,7 +36,7 @@ public class Usuario {
     private String email;
 
     @NotBlank(message = "La contraseña es obligatoria")
-    @Size(min = 6, max = 15)
+    @Size(min = 6, max = 100)
     @Column(nullable = false)
     private String password;
 

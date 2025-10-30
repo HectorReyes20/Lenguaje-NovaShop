@@ -1,4 +1,5 @@
 package com.example.novashop.service;
+
 import com.example.novashop.model.*;
 import com.example.novashop.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -38,7 +40,14 @@ public class PedidoService {
         return pedidoRepository.findByNumeroPedido(numeroPedido);
     }
 
+    /**
+     * Obtener pedidos por estado (null = todos)
+     */
     public Page<Pedido> obtenerPorEstado(Pedido.EstadoPedido estado, Pageable pageable) {
+        if (estado == null) {
+            // Retornar TODOS los pedidos si estado es null
+            return pedidoRepository.findAll(pageable);
+        }
         return pedidoRepository.findByEstadoOrderByFechaPedidoDesc(estado, pageable);
     }
 
@@ -66,7 +75,6 @@ public class PedidoService {
                 Cupon cupon = cuponOpt.get();
                 if (cupon.puedeAplicarse(subtotal)) {
                     descuento = cupon.calcularDescuento(subtotal);
-                    // Incrementar usos del cupón
                     cupon.setUsosActuales(cupon.getUsosActuales() + 1);
                     cuponRepository.save(cupon);
                 }
@@ -96,13 +104,11 @@ public class PedidoService {
         for (Carrito item : itemsCarrito) {
             VarianteProducto variante = item.getVariante();
 
-            // Verificar stock una última vez
             if (!variante.hayStock(item.getCantidad())) {
                 throw new RuntimeException("Stock insuficiente para: " +
                         variante.getProducto().getNombre());
             }
 
-            // Crear detalle
             DetallePedido detalle = DetallePedido.builder()
                     .pedido(pedido)
                     .variante(variante)
@@ -113,12 +119,10 @@ public class PedidoService {
 
             detallePedidoRepository.save(detalle);
 
-            // Actualizar stock
             variante.setStock(variante.getStock() - item.getCantidad());
             varianteRepository.save(variante);
         }
 
-        // Limpiar carrito
         carritoRepository.deleteByUsuarioIdUsuario(idUsuario);
 
         log.info("Pedido creado exitosamente: {}", numeroPedido);

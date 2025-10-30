@@ -9,11 +9,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -39,6 +37,13 @@ public class ProductoService {
 
     public Page<Producto> obtenerProductosActivos(Pageable pageable) {
         return productoRepository.findByEstado(Producto.EstadoProducto.ACTIVO, pageable);
+    }
+
+    /**
+     * NUEVO: Obtener productos por estado específico
+     */
+    public Page<Producto> obtenerPorEstado(Producto.EstadoProducto estado, Pageable pageable) {
+        return productoRepository.findByEstado(estado, pageable);
     }
 
     public Page<Producto> obtenerProductosDestacados(Pageable pageable) {

@@ -267,7 +267,7 @@
                  th:attr="data-aos-delay=${iterStat.index * 50}">
                 <div class="product-card">
                     <div class="product-image-container">
-                        <img th:src="@{${producto.imagenes[0]?.urlImagen}}"
+                        <img th:src="@{${!producto.imagenes.isEmpty() ? producto.imagenes[0].urlImagen : ''}}"
                              th:alt="${producto.nombre}"
                              onerror="this.src='https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=400&h=500&fit=crop'">
 
@@ -343,7 +343,7 @@
                  th:attr="data-aos-delay=${iterStat.index * 50}">
                 <div class="product-card border-danger">
                     <div class="product-image-container">
-                        <img th:src="@{${producto.imagenes[0]?.urlImagen}}"
+                        <img th:src="@{${!producto.imagenes.isEmpty() ? producto.imagenes[0].urlImagen : ''}}"
                              th:alt="${producto.nombre}"
                              onerror="this.src='https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=400&h=500&fit=crop'">
 
