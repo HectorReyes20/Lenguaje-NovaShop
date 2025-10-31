@@ -1,4 +1,6 @@
 package com.example.novashop.model;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -32,6 +34,7 @@ public class Producto {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_categoria", nullable = false)
+    @JsonBackReference("producto-categoria") // <-- AÑADE ESTA LÍNEA
     private Categoria categoria;
 
     @NotNull(message = "El precio base es obligatorio")
@@ -70,14 +73,17 @@ public class Producto {
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     @BatchSize(size = 100)
+    @JsonManagedReference("producto-variante") // <-- AÑADE ESTA LÍNEA
     private List<VarianteProducto> variantes = new ArrayList<>();
 
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
+    @JsonManagedReference("producto-imagen") // <-- AÑADE ESTA LÍNEA
     private List<ImagenProducto> imagenes = new ArrayList<>();
 
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
+    @JsonManagedReference("producto-resena") // <-- AÑADE ESTA LÍNEA
     private List<Resena> resenas = new ArrayList<>();
 
     // Métodos helper

@@ -42,19 +42,31 @@ public class CarritoViewController {
     public String agregarAlCarrito(
             @PathVariable Long idVariante,
             @RequestParam(defaultValue = "1") Integer cantidad,
+            @RequestParam(required = false) String from,
             RedirectAttributes redirectAttributes) {
 
         try {
             Long idUsuario = securityUtils.getCurrentUserId()
                     .orElseThrow(() -> new RuntimeException("Debe iniciar sesión"));
 
+            // Agregar al carrito
             carritoService.agregarAlCarrito(idUsuario, idVariante, cantidad);
 
-            redirectAttributes.addFlashAttribute("mensaje", "Producto agregado al carrito");
+            redirectAttributes.addFlashAttribute("mensaje",
+                    "Producto agregado al carrito correctamente");
 
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             log.error("Error al agregar al carrito: {}", e.getMessage());
             redirectAttributes.addFlashAttribute("error", e.getMessage());
+
+            // Si viene de detalle de producto, redirigir allí
+            if ("detalle".equals(from)) {
+                return "redirect:" + redirectAttributes.getAttribute("referer");
+            }
+        } catch (Exception e) {
+            log.error("Error inesperado al agregar al carrito: {}", e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("error",
+                    "Ocurrió un error inesperado. Por favor, inténtalo de nuevo.");
         }
 
         return "redirect:/carrito";
@@ -96,6 +108,57 @@ public class CarritoViewController {
 
         carritoService.limpiarCarrito(idUsuario);
         redirectAttributes.addFlashAttribute("mensaje", "Carrito vaciado");
+
+        return "redirect:/carrito";
+    }
+    @PostMapping("/agregar")
+    public String agregarAlCarritoDesdeDetalle(
+            @RequestParam Long idVariante,
+            @RequestParam(defaultValue = "1") Integer cantidad,
+            @RequestParam(required = false) Long productoId,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            Long idUsuario = securityUtils.getCurrentUserId()
+                    .orElseThrow(() -> new RuntimeException("Debe iniciar sesión"));
+
+            // Validar cantidad
+            if (cantidad <= 0) {
+                throw new IllegalArgumentException("La cantidad debe ser mayor a 0");
+            }
+
+            // Agregar al carrito
+            carritoService.agregarAlCarrito(idUsuario, idVariante, cantidad);
+
+            redirectAttributes.addFlashAttribute("mensaje",
+                    "¡Producto agregado al carrito! (" + cantidad + " unidad" + (cantidad > 1 ? "es" : "") + ")");
+
+            // Redirigir de vuelta al producto si se proporciona el ID
+            if (productoId != null) {
+                return "redirect:/productos/" + productoId;
+            }
+
+        } catch (IllegalArgumentException e) {
+            log.warn("Validación fallida al agregar al carrito: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+
+            if (productoId != null) {
+                return "redirect:/productos/" + productoId;
+            }
+
+        } catch (RuntimeException e) {
+            log.error("Error al agregar al carrito: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+
+            if (productoId != null) {
+                return "redirect:/productos/" + productoId;
+            }
+
+        } catch (Exception e) {
+            log.error("Error inesperado: {}", e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("error",
+                    "Ocurrió un error inesperado. Por favor, inténtalo de nuevo.");
+        }
 
         return "redirect:/carrito";
     }

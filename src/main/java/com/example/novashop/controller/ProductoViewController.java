@@ -4,6 +4,8 @@ import com.example.novashop.model.Categoria;
 import com.example.novashop.model.Producto;
 import com.example.novashop.service.CategoriaService;
 import com.example.novashop.service.ProductoService;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -33,9 +35,10 @@ public class ProductoViewController {
             @RequestParam(required = false) String genero,
             @RequestParam(required = false) Long categoriaId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "9") int size, // Define cuántos productos por página
+            @RequestParam(defaultValue = "9") int size,
             @RequestParam(defaultValue = "nombre,asc") String sort,
-            Model model) {
+            Model model, HttpServletRequest request) {
+        request.getSession(true);
 
         String[] sortParams = sort.split(",");
         Sort.Direction direction = sortParams[1].equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;

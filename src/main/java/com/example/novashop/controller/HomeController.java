@@ -89,30 +89,48 @@ public class HomeController {
 
     @GetMapping("/productos/{id}")
     public String detalleProducto(@PathVariable Long id, Model model) {
-        Producto producto = productoService.obtenerPorId(id)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+        log.info("Mostrando detalle del producto ID: {}", id);
 
-        // Productos relacionados
-        Pageable pageable = PageRequest.of(0, 4);
-        List<Producto> relacionados = productoService.obtenerRelacionados(
-                id, producto.getCategoria().getIdCategoria(), pageable);
+        try {
 
-        // Calificación promedio
-        Double calificacion = productoService.obtenerCalificacionPromedio(id);
+            Producto producto = productoService.obtenerPorId(id)
+                    .orElseThrow(() -> new RuntimeException("Producto no encontrado con ID: " + id));
 
-        // Verificar si está en favoritos (si hay usuario autenticado)
-        boolean esFavorito = false;
-        if (securityUtils.isAuthenticated()) {
-            // Aquí verificarías con el servicio de favoritos
+            if (producto.getEstado() != Producto.EstadoProducto.ACTIVO) {
+                throw new RuntimeException("Este producto no está disponible");
+            }
+
+            Pageable pageable = PageRequest.of(0, 4);
+            List<Producto> relacionados = productoService.obtenerRelacionados(
+                    id,
+                    producto.getCategoria().getIdCategoria(),
+                    pageable
+            );
+
+            Double calificacion = productoService.obtenerCalificacionPromedio(id);
+
+            boolean esFavorito = false;
+            if (securityUtils.isAuthenticated()) {
+                Long idUsuario = securityUtils.getCurrentUserId().orElse(null);
+                if (idUsuario != null) {
+                    // TODO: Implementar cuando tengas FavoritoService
+                    // esFavorito = favoritoService.esFavorito(idUsuario, id);
+                }
+            }
+
+            model.addAttribute("producto", producto);
+            model.addAttribute("relacionados", relacionados);
+            model.addAttribute("calificacion", calificacion != null ? calificacion : 0.0);
+            model.addAttribute("esFavorito", esFavorito);
+            model.addAttribute("titulo", producto.getNombre());
+
+            return "productos/detalle";
+
+        } catch (RuntimeException e) {
+            log.error("Error al mostrar detalle del producto: {}", e.getMessage());
+
+            return "redirect:/productos?error=" + e.getMessage();
         }
-
-        model.addAttribute("producto", producto);
-        model.addAttribute("relacionados", relacionados);
-        model.addAttribute("calificacion", calificacion);
-        model.addAttribute("esFavorito", esFavorito);
-        model.addAttribute("titulo", producto.getNombre());
-
-        return "productos/detalle";
     }
 
     //@GetMapping("/ofertas")

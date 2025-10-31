@@ -1,4 +1,5 @@
 package com.example.novashop.service;
+
 import com.example.novashop.model.*;
 import com.example.novashop.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -21,6 +23,7 @@ public class CarritoService {
 
     private final CarritoRepository carritoRepository;
     private final VarianteProductoRepository varianteRepository;
+    private final UsuarioRepository usuarioRepository; // <--- 1. AÑADE ESTA DEPENDENCIA
 
     public List<Carrito> obtenerCarritoUsuario(Long idUsuario) {
         return carritoRepository.findByUsuarioIdUsuario(idUsuario);
@@ -54,11 +57,24 @@ public class CarritoService {
             carrito.setCantidad(nuevaCantidad);
             return carritoRepository.save(carrito);
         } else {
+            // --- INICIO DE LA CORRECCIÓN ---
+
+            // 2. Obtén la referencia del Usuario
+            // (Usamos getReferenceById para no hacer un SELECT extra, es más eficiente)
+            Usuario usuario = usuarioRepository.getReferenceById(idUsuario);
+
             // Crear nuevo item
             Carrito nuevoCarrito = Carrito.builder()
+                    .usuario(usuario) // <--- 3. ASIGNA EL USUARIO
                     .variante(variante)
                     .cantidad(cantidad)
+                    // (Si tu entidad Carrito tiene 'fechaAgregado',
+                    // puedes añadirla aquí también)
+                    // .fechaAgregado(LocalDateTime.now())
                     .build();
+
+            // --- FIN DE LA CORRECCIÓN ---
+
             return carritoRepository.save(nuevoCarrito);
         }
     }

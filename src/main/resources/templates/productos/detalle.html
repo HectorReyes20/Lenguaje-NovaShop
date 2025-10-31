@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${producto.nombre + ' - NovaShop'}">Detalle del Producto - NovaShop</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/detalle.css}">
+</head>
+<body>
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<!-- Alertas -->
+<div th:replace="~{fragments/navbar :: alerts}"></div>
+
+<!-- Detalle del Producto -->
+<section class="product-detail-section">
+    <div class="container">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/}">Inicio</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/productos}">Productos</a></li>
+                <li class="breadcrumb-item">
+                    <a th:href="@{/productos(categoriaId=${producto.categoria.idCategoria})}"
+                       th:text="${producto.categoria.nombre}">Categoría</a>
+                </li>
+                <li class="breadcrumb-item active" th:text="${producto.nombre}">Producto</li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <!-- Galería de Imágenes -->
+            <div class="col-lg-6">
+                <div class="product-gallery">
+                    <!-- Imagen Principal -->
+                    <div class="main-image-container">
+                        <!-- Badges -->
+                        <div class="product-badges">
+                            <span class="product-badge badge-discount"
+                                  th:if="${producto.precioOferta != null && producto.precioOferta.compareTo(producto.precioBase) < 0}">
+                                -<span th:text="${#numbers.formatDecimal((1 - producto.precioOferta / producto.precioBase) * 100, 0, 0)}">20</span>% OFF
+                            </span>
+                            <span class="product-badge badge-new" th:if="${producto.destacado}">
+                                DESTACADO
+                            </span>
+                        </div>
+
+                        <img id="mainImage"
+                             th:src="${!producto.imagenes.isEmpty() ? producto.imagenes[0].urlImagen : '/images/no-image.jpg'}"
+                             th:alt="${producto.nombre}"
+                             class="main-image">
+                    </div>
+
+                    <!-- Miniaturas -->
+                    <div class="thumbnail-container" th:if="${producto.imagenes.size() > 1}">
+                        <div class="thumbnail"
+                             th:each="imagen, iterStat : ${producto.imagenes}"
+                             th:classappend="${iterStat.index == 0} ? 'active' : ''"
+                             th:data-imagen-url="${imagen.urlImagen}"
+                             onclick="cambiarImagenDesdeData(this)">
+                            <img th:src="${imagen.urlImagen}" th:alt="${producto.nombre}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información del Producto -->
+            <div class="col-lg-6">
+                <div class="product-info">
+                    <!-- Marca -->
+                    <div class="product-brand" th:if="${producto.marca != null}" th:text="${producto.marca}">
+                        MARCA
+                    </div>
+
+                    <!-- Título -->
+                    <h1 class="product-title" th:text="${producto.nombre}">
+                        Nombre del Producto
+                    </h1>
+
+                    <!-- Rating -->
+                    <div class="product-rating">
+                        <div class="stars">
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-half"></i>
+                        </div>
+                        <span class="text-muted">
+                            <span th:text="${calificacion != null ? #numbers.formatDecimal(calificacion, 1, 1) : '4.5'}">4.5</span>
+                            (<span th:text="${producto.resenas.size()}">0</span> reseñas)
+                        </span>
+                    </div>
+
+                    <!-- Precio -->
+                    <div class="product-price">
+                        <span class="price-current"
+                              th:text="'S/ ' + ${#numbers.formatDecimal(producto.precioFinal, 1, 2)}">
+                            S/ 89.90
+                        </span>
+
+                        <span class="price-original"
+                              th:if="${producto.precioOferta != null}"
+                              th:text="'S/ ' + ${#numbers.formatDecimal(producto.precioBase, 1, 2)}">
+                            S/ 120.00
+                        </span>
+
+                        <span class="price-discount"
+                              th:if="${producto.precioOferta != null}">
+                            AHORRA S/ <span th:text="${#numbers.formatDecimal(producto.precioBase.subtract(producto.precioOferta), 1, 2)}">30.10</span>
+                        </span>
+                    </div>
+
+
+
+                    <!-- Formulario de Compra -->
+                    <form id="addToCartForm" th:action="@{/carrito/agregar}" method="post">
+                        <!-- ID del producto para redirigir de vuelta -->
+                        <input type="hidden" name="productoId" th:value="${producto.idProducto}">
+
+                        <!-- ID de variante (se agrega dinámicamente con JS) -->
+                        <input type="hidden" name="idVariante" id="idVarianteInput" value="">
+
+                        <!-- Selector de Talla -->
+                        <div class="variant-selector" th:if="${!producto.variantes.isEmpty()}">
+                            <label class="variant-label">
+                                Selecciona una talla:
+                                <span class="text-danger">*</span>
+                            </label>
+                            <div class="variant-options" id="tallaOptions">
+                                <th:block th:each="talla : ${#sets.toSet(producto.variantes.![talla])}">
+                                    <input type="radio"
+                                           name="talla"
+                                           th:id="'talla-' + ${talla}"
+                                           th:value="${talla}"
+                                           class="variant-option"
+                                           onchange="actualizarColores()">
+                                    <label th:for="'talla-' + ${talla}"
+                                           class="variant-option-label"
+                                           th:text="${talla}">
+                                        M
+                                    </label>
+                                </th:block>
+                            </div>
+                        </div>
+
+                        <!-- Selector de Color -->
+                        <div class="variant-selector" th:if="${!producto.variantes.isEmpty()}">
+                            <label class="variant-label">
+                                Selecciona un color:
+                                <span class="text-danger">*</span>
+                            </label>
+                            <div class="variant-options" id="colorOptions">
+                                <th:block th:each="color : ${#sets.toSet(producto.variantes.![color])}">
+                                    <input type="radio"
+                                           name="color"
+                                           th:id="'color-' + ${color}"
+                                           th:value="${color}"
+                                           class="variant-option"
+                                           onchange="actualizarStock()">
+                                    <label th:for="'color-' + ${color}"
+                                           class="variant-option-label"
+                                           th:text="${color}">
+                                        Rojo
+                                    </label>
+                                </th:block>
+                            </div>
+                        </div>
+
+                        <!-- Indicador de Stock -->
+                        <div class="mb-3" id="stockIndicator" style="display: none;">
+                            <!-- Se actualiza dinámicamente con JavaScript -->
+                        </div>
+
+                        <!-- Selector de Cantidad -->
+                        <div class="quantity-selector">
+                            <label class="variant-label">Cantidad:</label>
+                            <div class="quantity-input">
+                                <button type="button" class="quantity-btn" onclick="decrementarCantidad()">
+                                    <i class="bi bi-dash"></i>
+                                </button>
+                                <input type="number"
+                                       name="cantidad"
+                                       id="cantidad"
+                                       value="1"
+                                       min="1"
+                                       max="99"
+                                       class="quantity-value"
+                                       readonly>
+                                <button type="button" class="quantity-btn" onclick="incrementarCantidad()">
+                                    <i class="bi bi-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div class="product-actions">
+                            <button type="submit"
+                                    class="btn btn-primary btn-add-cart"
+                                    id="btnAgregar">
+                                <i class="bi bi-cart-plus me-2"></i>
+                                Agregar al Carrito
+                            </button>
+
+                            <button type="button"
+                                    class="btn btn-favorite"
+                                    onclick="toggleFavorito()">
+                                <i class="bi bi-heart" id="favoritoIcon"></i>
+                            </button>
+                        </div>
+                    </form>
+
+
+                    <!-- Información Adicional -->
+                    <div class="product-features">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-truck fs-4 text-primary me-3"></i>
+                            <div>
+                                <strong>Envío Gratis</strong>
+                                <p class="text-muted mb-0 small">En compras mayores a S/ 100</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-arrow-repeat fs-4 text-success me-3"></i>
+                            <div>
+                                <strong>Devoluciones Fáciles</strong>
+                                <p class="text-muted mb-0 small">30 días para devolver</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-shield-check fs-4 text-info me-3"></i>
+                            <div>
+                                <strong>Compra Segura</strong>
+                                <p class="text-muted mb-0 small">Pago 100% protegido</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs de Información -->
+        <div class="product-tabs">
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#descripcion">
+                        Descripción
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#caracteristicas">
+                        Características
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#resenas">
+                        Reseñas (<span th:text="${producto.resenas.size()}">0</span>)
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content mt-4">
+                <!-- Descripción -->
+                <div class="tab-pane fade show active" id="descripcion">
+                    <div class="p-4">
+                        <p th:text="${producto.descripcion}" style="white-space: pre-line;">
+                            Descripción del producto...
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Características -->
+                <div class="tab-pane fade" id="caracteristicas">
+                    <div class="p-4">
+                        <table class="table">
+                            <tbody>
+                            <tr th:if="${producto.marca != null}">
+                                <th style="width: 30%;">Marca</th>
+                                <td th:text="${producto.marca}">Marca</td>
+                            </tr>
+                            <tr th:if="${producto.material != null}">
+                                <th>Material</th>
+                                <td th:text="${producto.material}">Material</td>
+                            </tr>
+                            <tr th:if="${producto.genero != null}">
+                                <th>Género</th>
+                                <td th:text="${producto.genero}">Género</td>
+                            </tr>
+                            <tr>
+                                <th>Categoría</th>
+                                <td th:text="${producto.categoria.nombre}">Categoría</td>
+                            </tr>
+                            <tr th:if="${!producto.variantes.isEmpty()}">
+                                <th>Tallas Disponibles</th>
+                                <td>
+                                        <span th:each="talla, iterStat : ${#sets.toSet(producto.variantes.![talla])}"
+                                              th:text="${talla + (iterStat.last ? '' : ', ')}">
+                                        </span>
+                                </td>
+                            </tr>
+                            <tr th:if="${!producto.variantes.isEmpty()}">
+                                <th>Colores Disponibles</th>
+                                <td>
+                                        <span th:each="color, iterStat : ${#sets.toSet(producto.variantes.![color])}"
+                                              th:text="${color + (iterStat.last ? '' : ', ')}">
+                                        </span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Reseñas -->
+                <div class="tab-pane fade" id="resenas">
+                    <div class="p-4">
+                        <div th:if="${producto.resenas.isEmpty()}" class="text-center text-muted py-5">
+                            <i class="bi bi-chat-square-text fs-1 d-block mb-3"></i>
+                            <p>Aún no hay reseñas para este producto.</p>
+                            <p class="small">¡Sé el primero en dejar tu opinión!</p>
+                        </div>
+
+                        <!-- Lista de reseñas (si existen) -->
+                        <div th:if="${!producto.resenas.isEmpty()}">
+                            <div class="mb-4" th:each="resena : ${producto.resenas}">
+                                <div class="d-flex align-items-start">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <strong th:text="${resena.usuario.nombre}">Usuario</strong>
+                                            <span class="text-muted ms-2 small"
+                                                  th:text="${#temporals.format(resena.fechaResena, 'dd/MM/yyyy')}">
+                                                01/01/2024
+                                            </span>
+                                            <span class="badge bg-success ms-2" th:if="${resena.verificada}">
+                                                Compra Verificada
+                                            </span>
+                                        </div>
+                                        <div class="stars text-warning mb-2">
+                                            <i class="bi"
+                                               th:each="i : ${#numbers.sequence(1, 5)}"
+                                               th:classappend="${i <= resena.calificacion} ? 'bi-star-fill' : 'bi-star'"></i>
+                                        </div>
+                                        <h6 th:if="${resena.titulo != null}" th:text="${resena.titulo}">
+                                            Título de la reseña
+                                        </h6>
+                                        <p th:text="${resena.comentario}">Comentario de la reseña...</p>
+                                    </div>
+                                </div>
+                                <hr>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Productos Relacionados -->
+        <div class="related-products" th:if="${!relacionados.isEmpty()}">
+            <h3 class="mb-4">También te puede interesar</h3>
+
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3" th:each="prod : ${relacionados}">
+                    <div class="product-card h-100">
+                        <div class="product-image-container">
+                            <img th:src="${!prod.imagenes.isEmpty() ? prod.imagenes[0].urlImagen : '/images/no-image.jpg'}"
+                                 th:alt="${prod.nombre}">
+
+                            <div class="product-actions">
+                                <a th:href="@{/productos/{id}(id=${prod.idProducto})}"
+                                   class="btn btn-light">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </div>
+
+                            <div class="product-badge"
+                                 th:if="${prod.precioOferta != null && prod.precioOferta.compareTo(prod.precioBase) < 0}">
+                                <span class="badge">OFERTA</span>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <span class="product-brand" th:text="${prod.marca}">Marca</span>
+                            <h5 class="card-title product-title">
+                                <a th:href="@{/productos/{id}(id=${prod.idProducto})}"
+                                   th:text="${prod.nombre}">Producto</a>
+                            </h5>
+
+                            <div class="product-price">
+                                <span class="price-final"
+                                      th:text="'S/ ' + ${#numbers.formatDecimal(prod.precioFinal, 1, 2)}">
+                                    S/ 89.90
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script th:inline="javascript">
+    // Datos del producto desde el servidor
+    const variantes = /*[[${producto.variantes}]]*/ [];
+
+    // Cambiar imagen principal (usando data attributes - SEGURO)
+    function cambiarImagenDesdeData(thumbnail) {
+        const url = thumbnail.getAttribute('data-imagen-url');
+        document.getElementById('mainImage').src = url;
+
+        // Actualizar thumbnail activo
+        document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+        thumbnail.classList.add('active');
+    }
+
+    // Actualizar colores disponibles según talla seleccionada
+    function actualizarColores() {
+        const tallaSeleccionada = document.querySelector('input[name="talla"]:checked')?.value;
+
+        if (!tallaSeleccionada) return;
+
+        // Obtener colores disponibles para esta talla
+        const coloresDisponibles = variantes
+            .filter(v => v.talla === tallaSeleccionada)
+            .map(v => v.color);
+
+        // Actualizar opciones de color
+        document.querySelectorAll('input[name="color"]').forEach(input => {
+            const color = input.value;
+            const disponible = coloresDisponibles.includes(color);
+
+            input.disabled = !disponible;
+            if (!disponible && input.checked) {
+                input.checked = false;
+            }
+        });
+
+        // Limpiar indicador de stock
+        document.getElementById('stockIndicator').style.display = 'none';
+    }
+
+    // Actualizar stock según variante seleccionada
+    function actualizarStock() {
+        const talla = document.querySelector('input[name="talla"]:checked')?.value;
+        const color = document.querySelector('input[name="color"]:checked')?.value;
+
+        if (!talla || !color) return;
+
+        // Buscar variante
+        const variante = variantes.find(v => v.talla === talla && v.color === color);
+
+        if (!variante) return;
+
+        // Mostrar indicador de stock
+        const stockIndicator = document.getElementById('stockIndicator');
+        const stock = variante.stock;
+        const cantidadInput = document.getElementById('cantidad');
+        const btnAgregar = document.getElementById('btnAgregar');
+
+        stockIndicator.style.display = 'block';
+
+        if (stock === 0) {
+            stockIndicator.innerHTML = '<span class="stock-indicator stock-out"><i class="bi bi-x-circle me-2"></i>Agotado</span>';
+            btnAgregar.disabled = true;
+            cantidadInput.max = 0;
+        } else if (stock < 10) {
+            stockIndicator.innerHTML = `<span class="stock-indicator stock-low"><i class="bi bi-exclamation-triangle me-2"></i>¡Solo quedan ${stock} unidades!</span>`;
+            btnAgregar.disabled = false;
+            cantidadInput.max = stock;
+        } else {
+            stockIndicator.innerHTML = '<span class="stock-indicator stock-available"><i class="bi bi-check-circle me-2"></i>Disponible</span>';
+            btnAgregar.disabled = false;
+            cantidadInput.max = stock;
+        }
+
+        // Resetear cantidad a 1
+        cantidadInput.value = 1;
+    }
+
+    // Incrementar cantidad
+    function incrementarCantidad() {
+        const input = document.getElementById('cantidad');
+        const max = parseInt(input.max) || 99;
+        const current = parseInt(input.value) || 1;
+
+        if (current < max) {
+            input.value = current + 1;
+        }
+    }
+
+    // Decrementar cantidad
+    function decrementarCantidad() {
+        const input = document.getElementById('cantidad');
+        const min = parseInt(input.min) || 1;
+        const current = parseInt(input.value) || 1;
+
+        if (current > min) {
+            input.value = current - 1;
+        }
+    }
+
+    // Toggle favorito
+    function toggleFavorito() {
+        const icon = document.getElementById('favoritoIcon');
+        const isFavorito = icon.classList.contains('bi-heart-fill');
+
+        if (isFavorito) {
+            icon.classList.remove('bi-heart-fill');
+            icon.classList.add('bi-heart');
+            // TODO: Llamar API para quitar de favoritos
+        } else {
+            icon.classList.add('bi-heart-fill');
+            icon.classList.remove('bi-heart');
+            // TODO: Llamar API para agregar a favoritos
+        }
+    }
+
+    // Validar formulario antes de enviar
+    document.getElementById('addToCartForm').addEventListener('submit', function(e) {
+        const talla = document.querySelector('input[name="talla"]:checked');
+        const color = document.querySelector('input[name="color"]:checked');
+
+        if (!talla || !color) {
+            e.preventDefault();
+            alert('Por favor, selecciona una talla y un color');
+            return false;
+        }
+
+        // Buscar variante seleccionada
+        const variante = variantes.find(v =>
+            v.talla === talla.value && v.color === color.value
+        );
+
+        if (!variante) {
+            e.preventDefault();
+            alert('Combinación de talla y color no disponible');
+            return false;
+        }
+
+        // Establecer ID de variante en el input hidden
+        document.getElementById('idVarianteInput').value = variante.idVariante;
+
+        // Verificar stock
+        const cantidad = parseInt(document.getElementById('cantidad').value);
+        if (cantidad > variante.stock) {
+            e.preventDefault();
+            alert(`Solo hay ${variante.stock} unidades disponibles`);
+            return false;
+        }
+    });
+
+    // Inicializar: CAMBIO - Botón visible desde el inicio, solo advertir si no hay selección
+    document.addEventListener('DOMContentLoaded', function() {
+        const btnAgregar = document.getElementById('btnAgregar');
+
+        // El botón siempre está visible
+        btnAgregar.style.display = 'flex';
+
+        // Solo deshabilitar si NO hay variantes
+        const hayVariantes = variantes && variantes.length > 0;
+
+        if (!hayVariantes) {
+            // Si no hay variantes, el producto no tiene opciones
+            btnAgregar.disabled = false;
+            console.log('Producto sin variantes - Botón habilitado');
+        } else {
+            // Si hay variantes, deshabilitar hasta que se seleccionen
+            btnAgregar.disabled = true;
+            console.log('Producto con variantes - Esperando selección');
+
+            // Habilitar cuando se seleccionen talla y color
+            document.querySelectorAll('input[name="talla"], input[name="color"]').forEach(input => {
+                input.addEventListener('change', function() {
+                    const talla = document.querySelector('input[name="talla"]:checked');
+                    const color = document.querySelector('input[name="color"]:checked');
+
+                    if (talla && color) {
+                        btnAgregar.disabled = false;
+                        console.log('Variante seleccionada - Botón habilitado');
+                    }
+                });
+            });
+        }
+    });
+</script>
+
+</body>
+</html>

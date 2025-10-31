@@ -1,4 +1,6 @@
 package com.example.novashop.model;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -28,6 +30,7 @@ public class Categoria {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_categoria_padre")
+    @JsonBackReference("categoria-padre") // <-- AÑADE ESTA LÍNEA
     private Categoria categoriaPadre;
 
     @Size(max = 255)
@@ -41,10 +44,12 @@ public class Categoria {
     // Relaciones
     @OneToMany(mappedBy = "categoriaPadre")
     @ToString.Exclude
+    @JsonManagedReference("categoria-padre") // <-- AÑADE ESTA LÍNEA
     private List<Categoria> subcategorias = new ArrayList<>();
 
     @OneToMany(mappedBy = "categoria")
     @ToString.Exclude
+    @JsonManagedReference("producto-categoria") // <-- AÑADE ESTA LÍNEA
     private List<Producto> productos = new ArrayList<>();
 
     // Enum

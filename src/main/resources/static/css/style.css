@@ -505,7 +505,12 @@ section {
 }
 
 /* Overlay de acciones */
-.product-actions {
+/* ============================================ */
+/* INICIO DE LA CORRECCIÓN */
+/* ============================================ */
+
+/* Overlay de acciones (AHORA SOLO DENTRO DE .product-card) */
+.product-card .product-actions {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -521,7 +526,7 @@ section {
     opacity: 1;
 }
 
-.product-actions .btn {
+.product-card .product-actions .btn {
     width: 50px;
     height: 50px;
     border-radius: 50%;
@@ -534,11 +539,15 @@ section {
     transition: all 0.3s ease;
 }
 
-.product-actions .btn:hover {
+.product-card .product-actions .btn:hover {
     transform: scale(1.1);
     background: var(--gradient-2);
     color: #fff;
 }
+
+/* ============================================ */
+/* FIN DE LA CORRECCIÓN */
+/* ============================================ */
 
 /* Badge de oferta */
 .product-badge {

@@ -1,4 +1,5 @@
 package com.example.novashop.model;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -18,6 +19,7 @@ public class ImagenProducto {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_producto", nullable = false)
+    @JsonBackReference("producto-imagen")
     private Producto producto;
 
     @NotBlank

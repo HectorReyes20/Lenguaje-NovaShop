@@ -100,7 +100,7 @@
                                      class="card-img-top"/>
 
                                 <div class="product-actions">
-                                    <a th:href="@{'/producto/' + ${producto.idProducto}}" class="btn btn-light" title="Ver detalle">
+                                    <a th:href="@{'/productos/' + ${producto.idProducto}}" class="btn btn-light" title="Ver detalle">
                                         <i class="bi bi-eye"></i>
                                     </a>
                                     <form th:action="@{/carrito/agregar}" method="post" class="d-inline">
@@ -122,7 +122,7 @@
                                     Marca
                                 </span>
                                 <h5 class="card-title product-title">
-                                    <a th:href="@{'/producto/' + ${producto.idProducto}}" class="text-decoration-none"
+                                    <a th:href="@{'/productos/' + ${producto.idProducto}}" class="text-decoration-none"
                                        th:text="${producto.nombre}">
                                         Nombre del Producto
                                     </a>
