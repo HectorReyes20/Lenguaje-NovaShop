@@ -1,6 +1,9 @@
 package com.example.novashop.controller;
 import com.example.novashop.model.Usuario;
 import com.example.novashop.security.SecurityUtils;
+import com.example.novashop.service.DireccionService;
+import com.example.novashop.service.FavoritoService;
+import com.example.novashop.service.PedidoService;
 import com.example.novashop.service.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,15 +21,22 @@ public class MiCuentaController {
 
     private final UsuarioService usuarioService;
     private final SecurityUtils securityUtils;
-    private final com.example.novashop.service.PedidoService pedidoService;
-    private final com.example.novashop.service.DireccionService direccionService;
+    private final PedidoService pedidoService;
+    private final DireccionService direccionService;
+    private final FavoritoService favoritoService;
 
     @GetMapping
     public String miCuenta(Model model) {
         Usuario usuario = securityUtils.getCurrentUser()
                 .orElseThrow(() -> new RuntimeException("Usuario no autenticado"));
-
+        Long idUsuario = usuario.getIdUsuario();
+        long totalPedidos = pedidoService.contarPedidosPorUsuario(idUsuario);
+        long totalDirecciones = direccionService.contarDireccionesPorUsuario(idUsuario);
+        long totalFavoritos = favoritoService.contarFavoritos(idUsuario);
         model.addAttribute("usuario", usuario);
+        model.addAttribute("totalPedidos", totalPedidos);
+        model.addAttribute("totalDirecciones", totalDirecciones);
+        model.addAttribute("totalFavoritos", totalFavoritos);
         return "cuenta/perfil";
     }
 

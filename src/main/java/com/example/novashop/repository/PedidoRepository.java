@@ -42,4 +42,6 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     // Generar número de pedido único
     @Query("SELECT COUNT(p) FROM Pedido p")
     Long contarTotalPedidos();
+
+    long countByUsuarioIdUsuario(Long idUsuario);
 }

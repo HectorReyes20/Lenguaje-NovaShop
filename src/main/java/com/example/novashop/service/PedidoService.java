@@ -26,6 +26,8 @@ public class PedidoService {
     private final CarritoRepository carritoRepository;
     private final VarianteProductoRepository varianteRepository;
     private final CuponRepository cuponRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final DireccionRepository direccionRepository;
 
     public Page<Pedido> obtenerPedidosUsuario(Long idUsuario, Pageable pageable) {
         return pedidoRepository.findByUsuarioIdUsuarioOrderByFechaPedidoDesc(
@@ -54,6 +56,11 @@ public class PedidoService {
     public Pedido crearPedido(Long idUsuario, Long idDireccionEnvio, String metodoPago,
                               String codigoCupon, BigDecimal costoEnvio) {
         log.info("Creando pedido para usuario: {}", idUsuario);
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + idUsuario));
+
+        Direccion direccionEnvio = direccionRepository.findById(idDireccionEnvio)
+                .orElseThrow(() -> new RuntimeException("Dirección no encontrada con ID: " + idDireccionEnvio));
 
         // Obtener items del carrito
         List<Carrito> itemsCarrito = carritoRepository.findByUsuarioIdUsuario(idUsuario);
@@ -89,6 +96,8 @@ public class PedidoService {
 
         // Crear pedido
         Pedido pedido = Pedido.builder()
+                .usuario(usuario) // <-- LÍNEA AÑADIDA
+                .direccionEnvio(direccionEnvio) // <-- LÍNEA AÑADIDA
                 .numeroPedido(numeroPedido)
                 .subtotal(subtotal)
                 .costoEnvio(costoEnvio)
@@ -97,6 +106,7 @@ public class PedidoService {
                 .estado(Pedido.EstadoPedido.PENDIENTE)
                 .metodoPago(metodoPago)
                 .build();
+        // --- FIN DE LA SECCIÓN ACTUALIZADA ---
 
         pedido = pedidoRepository.save(pedido);
 
@@ -154,5 +164,9 @@ public class PedidoService {
         );
         BigDecimal total = pedidoRepository.calcularTotalVentas(estadosValidos);
         return total != null ? total : BigDecimal.ZERO;
+    }
+
+    public long contarPedidosPorUsuario(Long idUsuario) {
+        return pedidoRepository.countByUsuarioIdUsuario(idUsuario);
     }
 }

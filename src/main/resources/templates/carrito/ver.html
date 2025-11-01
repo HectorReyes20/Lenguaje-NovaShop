@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Carrito - NovaShop</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/carrito.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div th:replace="~{fragments/navbar :: alerts}"></div>
+
+<!-- Carrito de Compras -->
+<section class="cart-page">
+    <div class="container">
+
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/}">Inicio</a></li>
+                <li class="breadcrumb-item active">Mi Carrito</li>
+            </ol>
+        </nav>
+
+        <!-- Título -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="display-5 fw-bold">
+                    <i class="bi bi-cart3 me-3"></i>Mi Carrito de Compras
+                </h1>
+                <p class="text-muted" th:if="${!items.isEmpty()}">
+                    Tienes <strong th:text="${items.size()}">0</strong>
+                    <span th:text="${items.size() == 1 ? 'producto' : 'productos'}">productos</span> en tu carrito
+                </p>
+            </div>
+        </div>
+
+        <!-- Carrito Vacío -->
+        <div class="row" th:if="${items.isEmpty()}">
+            <div class="col-12">
+                <div class="empty-cart">
+                    <i class="bi bi-cart-x"></i>
+                    <h3>Tu carrito está vacío</h3>
+                    <p class="text-muted mb-4">
+                        ¡Agrega productos para comenzar tu compra!
+                    </p>
+                    <a th:href="@{/productos}" class="btn btn-primary btn-lg px-5">
+                        <i class="bi bi-bag me-2"></i>
+                        Explorar Productos
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Carrito con Productos -->
+        <div class="row" th:if="${!items.isEmpty()}">
+
+            <!-- Lista de Productos -->
+            <div class="col-lg-8">
+
+                <!-- Botón Limpiar Carrito -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">Productos seleccionados</h5>
+                    <form th:action="@{/carrito/limpiar}" method="post"
+                          onsubmit="return confirm('¿Estás seguro de que deseas vaciar el carrito?');">
+                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                            <i class="bi bi-trash me-2"></i>Vaciar Carrito
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Items del Carrito -->
+                <div th:each="item : ${items}">
+                    <div class="cart-item">
+                        <div class="row align-items-center">
+
+                            <!-- Imagen del Producto -->
+                            <div class="col-auto">
+                                <img th:src="${!item.variante.producto.imagenes.isEmpty() ?
+                                              item.variante.producto.imagenes[0].urlImagen :
+                                              '/images/no-image.jpg'}"
+                                     th:alt="${item.variante.producto.nombre}"
+                                     class="cart-item-image">
+                            </div>
+
+                            <!-- Detalles del Producto -->
+                            <div class="col">
+                                <div class="cart-item-details">
+                                    <h5 th:text="${item.variante.producto.nombre}">
+                                        Nombre del Producto
+                                    </h5>
+                                    <p class="cart-item-variant mb-2">
+                                        <span class="badge bg-light text-dark me-2">
+                                            <i class="bi bi-tag me-1"></i>
+                                            Talla: <strong th:text="${item.variante.talla}">M</strong>
+                                        </span>
+                                        <span class="badge bg-light text-dark">
+                                            <i class="bi bi-palette me-1"></i>
+                                            Color: <strong th:text="${item.variante.color}">Rojo</strong>
+                                        </span>
+                                    </p>
+
+                                    <!-- SKU -->
+                                    <p class="text-muted small mb-0">
+                                        SKU: <span th:text="${item.variante.codigoSku}">SKU-123</span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Controles de Cantidad y Precio -->
+                            <div class="col-lg-5">
+                                <div class="row align-items-center">
+
+                                    <!-- Control de Cantidad -->
+                                    <div class="col-md-6 mb-3 mb-md-0">
+                                        <form th:action="@{/carrito/actualizar/{id}(id=${item.idCarrito})}"
+                                              method="post"
+                                              class="d-inline"
+                                              th:id="'form-' + ${item.idCarrito}">
+
+                                            <div class="quantity-control">
+                                                <button type="button"
+                                                        th:onclick="'decrementar(' + ${item.idCarrito} + ', ' + ${item.variante.stock} + ')'">
+                                                    <i class="bi bi-dash"></i>
+                                                </button>
+
+                                                <input type="number"
+                                                       name="cantidad"
+                                                       th:id="'cantidad-' + ${item.idCarrito}"
+                                                       th:value="${item.cantidad}"
+                                                       min="1"
+                                                       th:max="${item.variante.stock}"
+                                                       readonly>
+
+                                                <button type="button"
+                                                        th:onclick="'incrementar(' + ${item.idCarrito} + ', ' + ${item.variante.stock} + ')'">
+                                                    <i class="bi bi-plus"></i>
+                                                </button>
+                                            </div>
+
+                                            <small class="d-block mt-2 text-muted">
+                                                Stock disponible:
+                                                <strong th:text="${item.variante.stock}">10</strong>
+                                            </small>
+                                        </form>
+                                    </div>
+
+                                    <!-- Precio y Botón Eliminar -->
+                                    <div class="col-md-6 text-md-end">
+                                        <p class="cart-item-price mb-2"
+                                           th:text="'S/ ' + ${#numbers.formatDecimal(item.subtotal, 1, 2)}">
+                                            S/ 89.90
+                                        </p>
+
+                                        <form th:action="@{/carrito/eliminar/{id}(id=${item.idCarrito})}"
+                                              method="post"
+                                              onsubmit="return confirm('¿Eliminar este producto del carrito?');">
+                                            <button type="submit" class="btn-remove">
+                                                <i class="bi bi-trash me-1"></i>
+                                                Eliminar
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botón Continuar Comprando -->
+                <div class="mt-4">
+                    <a th:href="@{/productos}" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        Continuar Comprando
+                    </a>
+                </div>
+            </div>
+
+            <!-- Resumen del Pedido -->
+            <div class="col-lg-4">
+                <div class="cart-summary">
+                    <h4>
+                        <i class="bi bi-receipt me-2"></i>
+                        Resumen del Pedido
+                    </h4>
+
+                    <!-- Subtotal -->
+                    <div class="summary-row">
+                        <span>Subtotal (<span th:text="${items.size()}">0</span> productos):</span>
+                        <strong th:text="'S/ ' + ${#numbers.formatDecimal(total, 1, 2)}">
+                            S/ 0.00
+                        </strong>
+                    </div>
+
+                    <!-- Costo de Envío -->
+                    <div class="summary-row">
+                        <span>Envío:</span>
+                        <span th:if="${total >= 100}" class="text-success fw-bold">
+                            <i class="bi bi-check-circle me-1"></i>GRATIS
+                        </span>
+                        <strong th:if="${total < 100}">S/ 15.00</strong>
+                    </div>
+
+                    <!-- Mensaje de Envío Gratis -->
+                    <div th:if="${total < 100}" class="alert alert-info mt-3">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <small>
+                            ¡Agrega <strong th:text="'S/ ' + ${#numbers.formatDecimal(100 - total, 1, 2)}">S/ 0.00</strong>
+                            más para envío gratis!
+                        </small>
+                    </div>
+
+                    <!-- Descuentos (si hay) -->
+                    <div class="summary-row text-success" th:if="${false}">
+                        <span>Descuento:</span>
+                        <strong>- S/ 0.00</strong>
+                    </div>
+
+                    <!-- Total -->
+                    <div class="summary-row total">
+                        <span>TOTAL:</span>
+                        <span th:text="'S/ ' + ${#numbers.formatDecimal(total + (total < 100 ? 15 : 0), 1, 2)}">
+                            S/ 0.00
+                        </span>
+                    </div>
+
+                    <!-- Botón Proceder al Pago -->
+                    <a th:href="@{/checkout}" class="btn btn-checkout">
+                        <i class="bi bi-credit-card me-2"></i>
+                        Proceder al Pago
+                    </a>
+
+                    <!-- Trust Badges -->
+                    <div class="trust-badges">
+                        <div class="trust-badge">
+                            <i class="bi bi-shield-check"></i>
+                            <p>Compra<br>Segura</p>
+                        </div>
+                        <div class="trust-badge">
+                            <i class="bi bi-truck"></i>
+                            <p>Envío<br>Rápido</p>
+                        </div>
+                        <div class="trust-badge">
+                            <i class="bi bi-arrow-repeat"></i>
+                            <p>Devolución<br>30 días</p>
+                        </div>
+                    </div>
+
+                    <!-- Métodos de Pago -->
+                    <div class="mt-4 pt-3 border-top">
+                        <p class="text-muted small text-center mb-2">Aceptamos:</p>
+                        <div class="d-flex justify-content-center gap-2">
+                            <i class="bi bi-credit-card fs-4"></i>
+                            <i class="bi bi-paypal fs-4"></i>
+                            <i class="bi bi-bank fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Incrementar cantidad
+    function incrementar(idCarrito, stockMax) {
+        const input = document.getElementById('cantidad-' + idCarrito);
+        const currentValue = parseInt(input.value);
+
+        if (currentValue < stockMax) {
+            input.value = currentValue + 1;
+            actualizarCarrito(idCarrito);
+        } else {
+            alert('No hay más stock disponible');
+        }
+    }
+
+    // Decrementar cantidad
+    function decrementar(idCarrito, stockMax) {
+        const input = document.getElementById('cantidad-' + idCarrito);
+        const currentValue = parseInt(input.value);
+
+        if (currentValue > 1) {
+            input.value = currentValue - 1;
+            actualizarCarrito(idCarrito);
+        }
+    }
+
+    // Actualizar carrito (enviar formulario)
+    function actualizarCarrito(idCarrito) {
+        const form = document.getElementById('form-' + idCarrito);
+        form.submit();
+    }
+
+    // Auto-cerrar alertas después de 5 segundos
+    setTimeout(function() {
+        const alerts = document.querySelectorAll('.alert-dismissible');
+        alerts.forEach(function(alert) {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000);
+</script>
+
+</body>
+</html>

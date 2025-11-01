@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finalizar Compra - NovaShop</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/checkout.css}">
+</head>
+<body>
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<!-- Alertas -->
+<div th:replace="~{fragments/navbar :: alerts}"></div>
+
+<!-- Checkout Page -->
+<section class="checkout-page">
+    <div class="container">
+
+        <!-- Header con Pasos -->
+        <div class="checkout-header">
+            <h1 class="display-6 fw-bold mb-4">
+                <i class="bi bi-credit-card me-3"></i>Finalizar Compra
+            </h1>
+
+            <div class="checkout-steps">
+                <div class="checkout-step completed">
+                    <div class="step-circle">
+                        <i class="bi bi-check"></i>
+                    </div>
+                    <div class="step-label">Carrito</div>
+                </div>
+
+                <div class="checkout-step active">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">Envío y Pago</div>
+                </div>
+
+                <div class="checkout-step">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">Confirmación</div>
+                </div>
+            </div>
+        </div>
+
+        <form th:action="@{/checkout/procesar}" method="post" id="checkoutForm">
+            <div class="row">
+
+                <!-- Formulario Principal -->
+                <div class="col-lg-7">
+
+                    <!-- Dirección de Envío -->
+                    <div class="checkout-section">
+                        <h3 class="section-title">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            Dirección de Envío
+                        </h3>
+
+                        <!-- Sin Direcciones -->
+                        <div th:if="${direcciones.isEmpty()}" class="text-center py-4">
+                            <i class="bi bi-house-x fs-1 text-muted mb-3"></i>
+                            <p class="text-muted mb-3">No tienes direcciones guardadas</p>
+                            <a th:href="@{/mi-cuenta/direcciones/nueva}" class="btn-add-address">
+                                <i class="bi bi-plus-circle me-2"></i>
+                                Agregar Nueva Dirección
+                            </a>
+                        </div>
+
+                        <!-- Lista de Direcciones -->
+                        <div th:if="${!direcciones.isEmpty()}">
+                            <div th:each="dir, iterStat : ${direcciones}">
+                                <label class="address-card"
+                                       th:classappend="${iterStat.first} ? 'selected' : ''">
+                                    <input type="radio"
+                                           name="idDireccionEnvio"
+                                           th:value="${dir.idDireccion}"
+                                           th:checked="${iterStat.first}"
+                                           required
+                                           onchange="selectAddress(this)">
+
+                                    <div class="address-name">
+                                        <i class="bi bi-person-fill me-2"></i>
+                                        <span th:text="${dir.nombreCompleto}">Juan Pérez</span>
+
+                                        <span class="badge bg-success ms-2" th:if="${dir.esPredeterminada}">
+                                            Principal
+                                        </span>
+                                    </div>
+
+                                    <div class="address-details">
+                                        <p class="mb-1">
+                                            <i class="bi bi-geo-alt me-2"></i>
+                                            <span th:text="${dir.direccionLinea1}">Av. Principal 123</span>
+                                        </p>
+                                        <p class="mb-1" th:if="${dir.direccionLinea2 != null}">
+                                            <span th:text="${dir.direccionLinea2}"></span>
+                                        </p>
+                                        <p class="mb-1">
+                                            <span th:text="${dir.ciudad + ', ' + dir.departamento}">Lima, Lima</span>
+                                        </p>
+                                        <p class="mb-0">
+                                            <i class="bi bi-telephone me-2"></i>
+                                            <span th:text="${dir.telefono}">987654321</span>
+                                        </p>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Agregar Nueva Dirección -->
+                            <div class="text-center mt-3">
+                                <a th:href="@{/mi-cuenta/direcciones/nueva}" class="btn-add-address">
+                                    <i class="bi bi-plus-circle me-2"></i>
+                                    Usar otra dirección
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Método de Pago -->
+                    <div class="checkout-section">
+                        <h3 class="section-title">
+                            <i class="bi bi-credit-card-fill"></i>
+                            Método de Pago
+                        </h3>
+
+                        <!-- Tarjeta de Crédito/Débito -->
+                        <label class="payment-method selected">
+                            <input type="radio"
+                                   name="metodoPago"
+                                   value="TARJETA"
+                                   checked
+                                   onchange="selectPayment(this)">
+                            <i class="bi bi-credit-card-2-front payment-icon"></i>
+                            <div class="payment-details">
+                                <div class="payment-title">Tarjeta de Crédito/Débito</div>
+                                <div class="payment-description">Visa, Mastercard, American Express</div>
+                            </div>
+                        </label>
+
+                        <!-- Yape / Plin -->
+                        <label class="payment-method">
+                            <input type="radio"
+                                   name="metodoPago"
+                                   value="YAPE"
+                                   onchange="selectPayment(this)">
+                            <i class="bi bi-phone payment-icon"></i>
+                            <div class="payment-details">
+                                <div class="payment-title">Yape / Plin</div>
+                                <div class="payment-description">Pago rápido con tu celular</div>
+                            </div>
+                        </label>
+
+                        <!-- Transferencia Bancaria -->
+                        <label class="payment-method">
+                            <input type="radio"
+                                   name="metodoPago"
+                                   value="TRANSFERENCIA"
+                                   onchange="selectPayment(this)">
+                            <i class="bi bi-bank payment-icon"></i>
+                            <div class="payment-details">
+                                <div class="payment-title">Transferencia Bancaria</div>
+                                <div class="payment-description">Te enviaremos los datos por email</div>
+                            </div>
+                        </label>
+
+                        <!-- Contra Entrega -->
+                        <label class="payment-method">
+                            <input type="radio"
+                                   name="metodoPago"
+                                   value="CONTRA_ENTREGA"
+                                   onchange="selectPayment(this)">
+                            <i class="bi bi-cash-coin payment-icon"></i>
+                            <div class="payment-details">
+                                <div class="payment-title">Pago Contra Entrega</div>
+                                <div class="payment-description">Paga cuando recibas tu pedido</div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Cupón de Descuento -->
+                    <div class="checkout-section">
+                        <h3 class="section-title">
+                            <i class="bi bi-ticket-perforated-fill"></i>
+                            ¿Tienes un cupón de descuento?
+                        </h3>
+
+                        <div class="cupon-section">
+                            <div class="cupon-input-group">
+                                <input type="text"
+                                       name="codigoCupon"
+                                       class="form-control"
+                                       placeholder="Ingresa tu código de cupón"
+                                       id="codigoCupon">
+                                <button type="button"
+                                        class="btn btn-warning"
+                                        onclick="aplicarCupon()">
+                                    <i class="bi bi-check-circle me-2"></i>
+                                    Aplicar
+                                </button>
+                            </div>
+                            <small class="text-muted d-block mt-2">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Ejemplo: MILAGROS15 para 15% de descuento
+                            </small>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Resumen del Pedido -->
+                <div class="col-lg-5">
+                    <div class="order-summary">
+                        <h3 class="section-title mb-4">
+                            <i class="bi bi-receipt"></i>
+                            Resumen del Pedido
+                        </h3>
+
+                        <!-- Items del Pedido -->
+                        <div class="order-items mb-4">
+                            <div class="order-item" th:each="item : ${items}">
+                                <img th:src="${!item.variante.producto.imagenes.isEmpty() ?
+                                              item.variante.producto.imagenes[0].urlImagen :
+                                              '/images/no-image.jpg'}"
+                                     th:alt="${item.variante.producto.nombre}"
+                                     class="order-item-image">
+
+                                <div class="order-item-details">
+                                    <div class="order-item-name"
+                                         th:text="${item.variante.producto.nombre}">
+                                        Producto
+                                    </div>
+                                    <div class="order-item-variant">
+                                        <span th:text="${item.variante.talla}">M</span> |
+                                        <span th:text="${item.variante.color}">Rojo</span> |
+                                        Cant: <span th:text="${item.cantidad}">1</span>
+                                    </div>
+                                </div>
+
+                                <div class="order-item-price"
+                                     th:text="'S/ ' + ${#numbers.formatDecimal(item.subtotal, 1, 2)}">
+                                    S/ 89.90
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cálculos -->
+                        <div class="summary-row">
+                            <span>Subtotal:</span>
+                            <strong th:text="'S/ ' + ${#numbers.formatDecimal(subtotal, 1, 2)}">
+                                S/ 0.00
+                            </strong>
+                        </div>
+
+                        <div class="summary-row">
+                            <span>Costo de Envío:</span>
+                            <input type="hidden" name="costoEnvio" th:value="${costoEnvio}">
+                            <strong th:if="${costoEnvio > 0}"
+                                    th:text="'S/ ' + ${#numbers.formatDecimal(costoEnvio, 1, 2)}">
+                                S/ 15.00
+                            </strong>
+                            <strong th:if="${costoEnvio == 0}" class="text-success">
+                                <i class="bi bi-check-circle me-1"></i>GRATIS
+                            </strong>
+                        </div>
+
+                        <div class="summary-row text-success" id="descuentoRow" style="display: none;">
+                            <span>Descuento:</span>
+                            <strong id="descuentoMonto">- S/ 0.00</strong>
+                        </div>
+
+                        <div class="summary-row total">
+                            <span>TOTAL:</span>
+                            <span th:text="'S/ ' + ${#numbers.formatDecimal(total, 1, 2)}">
+                                S/ 0.00
+                            </span>
+                        </div>
+
+                        <!-- Botón Realizar Pedido -->
+                        <button type="submit"
+                                class="btn btn-place-order"
+                                id="btnPlaceOrder"
+                                th:disabled="${direcciones.isEmpty()}">
+                            <i class="bi bi-lock-fill me-2"></i>
+                            Realizar Pedido Seguro
+                        </button>
+
+                        <!-- Checkout Seguro -->
+                        <div class="secure-checkout">
+                            <i class="bi bi-shield-check"></i>
+                            <p class="mb-1"><strong>Compra 100% Segura</strong></p>
+                            <p>Tus datos están protegidos con encriptación SSL</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+
+    </div>
+</section>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Seleccionar dirección
+    function selectAddress(radio) {
+        document.querySelectorAll('.address-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        radio.parentElement.classList.add('selected');
+    }
+
+    // Seleccionar método de pago
+    function selectPayment(radio) {
+        document.querySelectorAll('.payment-method').forEach(method => {
+            method.classList.remove('selected');
+        });
+        radio.parentElement.classList.add('selected');
+    }
+
+    // Aplicar cupón (simulado - debes implementar la lógica real en el backend)
+    function aplicarCupon() {
+        const codigoCupon = document.getElementById('codigoCupon').value.trim().toUpperCase();
+
+        if (!codigoCupon) {
+            alert('Por favor, ingresa un código de cupón');
+            return;
+        }
+
+        // Aquí iría la validación real del cupón con el backend
+        // Por ahora, solo simulamos con el cupón "MILAGROS15"
+
+        if (codigoCupon === 'MILAGROS15') {
+            // Mostrar descuento (simulado)
+            document.getElementById('descuentoRow').style.display = 'flex';
+            document.getElementById('descuentoMonto').textContent = '- S/ 15.00';
+
+            alert('¡Cupón aplicado exitosamente! 15% de descuento');
+        } else {
+            alert('Cupón inválido o expirado');
+        }
+    }
+
+    // Validación del formulario
+    document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+        const direccionSeleccionada = document.querySelector('input[name="idDireccionEnvio"]:checked');
+        const metodoPagoSeleccionado = document.querySelector('input[name="metodoPago"]:checked');
+
+        if (!direccionSeleccionada) {
+            e.preventDefault();
+            alert('Por favor, selecciona una dirección de envío');
+            return false;
+        }
+
+        if (!metodoPagoSeleccionado) {
+            e.preventDefault();
+            alert('Por favor, selecciona un método de pago');
+            return false;
+        }
+
+        // Deshabilitar botón para evitar doble envío
+        const btn = document.getElementById('btnPlaceOrder');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Procesando...';
+    });
+
+    // Prevenir salida accidental
+    window.addEventListener('beforeunload', function (e) {
+        // Solo mostrar si hay datos en el formulario
+        const formModified = document.querySelector('input[name="idDireccionEnvio"]:checked');
+        if (formModified) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -14,4 +14,6 @@ public interface DireccionRepository extends JpaRepository<Direccion, Long> {
     Optional<Direccion> findByUsuarioIdUsuarioAndEsPredeterminadaTrue(Long idUsuario);
 
     List<Direccion> findByUsuarioIdUsuarioAndTipo(Long idUsuario, Direccion.TipoDireccion tipo);
+
+    long countByUsuarioIdUsuario(Long idUsuario);
 }

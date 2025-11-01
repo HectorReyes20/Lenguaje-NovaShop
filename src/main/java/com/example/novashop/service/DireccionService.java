@@ -71,4 +71,8 @@ public class DireccionService {
         log.info("Eliminando dirección con ID: {}", id);
         direccionRepository.deleteById(id);
     }
+
+    public long contarDireccionesPorUsuario(Long idUsuario) {
+        return direccionRepository.countByUsuarioIdUsuario(idUsuario);
+    }
 }
