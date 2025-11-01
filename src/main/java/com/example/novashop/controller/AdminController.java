@@ -534,7 +534,11 @@ public class AdminController {
             pedidos = pedidoService.obtenerPorEstado(null, pageable);
         }
 
+        // Calcular pedidos pendientes
+        Long pedidosPendientes = pedidoService.contarPorEstado(Pedido.EstadoPedido.PENDIENTE);
+
         model.addAttribute("pedidos", pedidos);
+        model.addAttribute("pedidosPendientes", pedidosPendientes);
         model.addAttribute("titulo", "Gestión de Pedidos");
         model.addAttribute("activePage", "pedidos");
 
@@ -551,6 +555,35 @@ public class AdminController {
         model.addAttribute("activePage", "pedidos");
 
         return "admin/pedido-detalle";
+    }
+
+    @PostMapping("/pedidos/{id}/cambiar-estado")
+    public String cambiarEstadoPedido(
+            @PathVariable Long id,
+            @RequestParam String nuevoEstado,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            Pedido.EstadoPedido estado = Pedido.EstadoPedido.valueOf(nuevoEstado);
+
+            pedidoService.actualizarEstado(id, estado);
+
+            log.info("Estado del pedido {} cambiado a {}", id, estado);
+
+            redirectAttributes.addFlashAttribute("mensaje",
+                    "Estado del pedido actualizado a " + estado);
+
+        } catch (IllegalArgumentException e) {
+            log.error("Estado inválido: {}", nuevoEstado);
+            redirectAttributes.addFlashAttribute("error",
+                    "Estado inválido");
+        } catch (Exception e) {
+            log.error("Error al cambiar estado del pedido {}: {}", id, e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("error",
+                    "Error al actualizar el estado del pedido");
+        }
+
+        return "redirect:/admin/pedidos/" + id;
     }
 
     /**

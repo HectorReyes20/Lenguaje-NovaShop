@@ -169,4 +169,14 @@ public class PedidoService {
     public long contarPedidosPorUsuario(Long idUsuario) {
         return pedidoRepository.countByUsuarioIdUsuario(idUsuario);
     }
+    public Long contarPorEstado(Pedido.EstadoPedido estado) {
+        return pedidoRepository.contarPedidosPorEstado(estado);
+    }
+
+    /**
+     * Obtener todos los pedidos paginados (para admin)
+     */
+    public Page<Pedido> obtenerTodosPaginados(Pageable pageable) {
+        return pedidoRepository.findAll(pageable);
+    }
 }
