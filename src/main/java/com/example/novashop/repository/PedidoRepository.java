@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 @Repository
@@ -44,4 +45,13 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     Long contarTotalPedidos();
 
     long countByUsuarioIdUsuario(Long idUsuario);
+
+    @Query("SELECT YEAR(p.fechaPedido) as anio, MONTH(p.fechaPedido) as mes, SUM(p.total) as totalMes " +
+            "FROM Pedido p " +
+            "WHERE p.fechaPedido >= :fechaInicio " +
+            "AND p.estado IN ('ENTREGADO', 'CONFIRMADO', 'ENVIADO', 'PROCESANDO') " + // Estados que cuentan como venta
+            "GROUP BY anio, mes " +
+            "ORDER BY anio, mes ASC")
+    List<Object[]> findVentasMensualesAgrupadas(@Param("fechaInicio") LocalDateTime fechaInicio);
+
 }

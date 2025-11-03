@@ -99,19 +99,6 @@
                                      th:alt="${producto.nombre}"
                                      class="card-img-top"/>
 
-                                <div class="product-actions">
-                                    <a th:href="@{'/productos/' + ${producto.idProducto}}" class="btn btn-light" title="Ver detalle">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
-                                    <form th:action="@{/carrito/agregar}" method="post" class="d-inline">
-                                        <input type="hidden" name="productoId" th:value="${producto.idProducto}" />
-                                        <input type="hidden" name="cantidad" value="1" />
-                                        <button type="submit" class="btn btn-light" title="Añadir al carrito">
-                                            <i class="bi bi-cart-plus"></i>
-                                        </button>
-                                    </form>
-                                </div>
-
                                 <div class="product-badge" th:if="${producto.precioOferta != null && producto.precioOferta.compareTo(producto.precioBase) < 0}">
                                     <span class="badge">Oferta</span>
                                 </div>
@@ -143,13 +130,9 @@
                                     </span>
                                 </div>
 
-                                <form th:action="@{/carrito/agregar}" method="post" class="mt-auto">
-                                    <input type="hidden" name="productoId" th:value="${producto.idProducto}" />
-                                    <input type="hidden" name="cantidad" value="1" />
-                                    <button type="submit" class="btn btn-primary w-100">
-                                        <i class="bi bi-cart-plus me-2"></i> Añadir al Carrito
-                                    </button>
-                                </form>
+                                <a th:href="@{'/productos/' + ${producto.idProducto}}" class="btn btn-outline-primary w-100 mt-auto">
+                                    <i class="bi bi-eye me-2"></i> Ver Detalles
+                                </a>
                             </div>
                         </div>
                     </div>

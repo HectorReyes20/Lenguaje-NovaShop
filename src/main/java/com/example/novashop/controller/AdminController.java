@@ -88,7 +88,7 @@ public class AdminController {
         // ========== DATOS PARA GRÁFICAS ==========
 
         // Ventas por mes (últimos 6 meses)
-        Map<String, BigDecimal> ventasPorMes = calcularVentasPorMes();
+        Map<String, BigDecimal> ventasPorMes = pedidoService.calcularVentasPorMes();
         model.addAttribute("ventasMensuales", ventasPorMes);
 
         // Pedidos por estado
@@ -644,32 +644,7 @@ public class AdminController {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Calcular ventas por mes (últimos 6 meses)
-     */
-    private Map<String, BigDecimal> calcularVentasPorMes() {
-        Map<String, BigDecimal> ventasPorMes = new LinkedHashMap<>();
 
-        // Nombres de meses
-        String[] meses = {"Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-                "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"};
-
-        LocalDateTime ahora = LocalDateTime.now();
-        int mesActual = ahora.getMonthValue() - 1; // 0-indexed
-
-        // Últimos 6 meses
-        for (int i = 5; i >= 0; i--) {
-            int mesIndex = (mesActual - i + 12) % 12;
-            String nombreMes = meses[mesIndex];
-
-            // TODO: Implementar query real para obtener ventas del mes
-            // Por ahora valores de ejemplo
-            BigDecimal ventasMes = BigDecimal.valueOf(Math.random() * 10000 + 5000);
-            ventasPorMes.put(nombreMes, ventasMes);
-        }
-
-        return ventasPorMes;
-    }
 
     /**
      * Calcular cantidad de pedidos por estado

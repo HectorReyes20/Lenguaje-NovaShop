@@ -11,8 +11,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.Month; // <-- 1. AÑADIR ESTE IMPORT
 import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle; // <-- 1. AÑADIR ESTE IMPORT
+import java.util.LinkedHashMap; // <-- 1. AÑADIR ESTE IMPORT
 import java.util.List;
+import java.util.Locale; // <-- 1. AÑADIR ESTE IMPORT
+import java.util.Map; // <-- 1. AÑADIR ESTE IMPORT
 import java.util.Optional;
 
 @Service
@@ -179,4 +184,42 @@ public class PedidoService {
     public Page<Pedido> obtenerTodosPaginados(Pageable pageable) {
         return pedidoRepository.findAll(pageable);
     }
+
+    public Map<String, BigDecimal> calcularVentasPorMes() {
+
+        // 1. Definir el rango de los últimos 6 meses
+        LocalDateTime fechaInicio = LocalDateTime.now().minusMonths(5).withDayOfMonth(1).toLocalDate().atStartOfDay();
+
+        // 2. Crear un mapa ORDENADO para los últimos 6 meses
+        Map<String, BigDecimal> ventasPorMes = new LinkedHashMap<>();
+        Locale localeEspanol = new Locale("es", "ES");
+
+        LocalDateTime mesIterador = LocalDateTime.now().minusMonths(5);
+        for (int i = 0; i < 6; i++) {
+            Month mes = mesIterador.plusMonths(i).getMonth();
+            String nombreMes = mes.getDisplayName(TextStyle.FULL, localeEspanol);
+            nombreMes = nombreMes.substring(0, 1).toUpperCase() + nombreMes.substring(1);
+            ventasPorMes.put(nombreMes, BigDecimal.ZERO); // Inicializar todos en 0
+        }
+
+        // 3. Llamar a la consulta del repositorio
+        List<Object[]> resultados = pedidoRepository.findVentasMensualesAgrupadas(fechaInicio);
+
+        // 4. Procesar los resultados de la base de datos
+        for (Object[] resultado : resultados) {
+            // Integer anio = (Integer) resultado[0];
+            Integer numeroMes = (Integer) resultado[1];
+            BigDecimal totalMes = (BigDecimal) resultado[2];
+
+            String nombreMes = Month.of(numeroMes).getDisplayName(TextStyle.FULL, localeEspanol);
+            nombreMes = nombreMes.substring(0, 1).toUpperCase() + nombreMes.substring(1);
+
+            if (ventasPorMes.containsKey(nombreMes)) {
+                ventasPorMes.put(nombreMes, totalMes);
+            }
+        }
+
+        return ventasPorMes;
+    }
+
 }
