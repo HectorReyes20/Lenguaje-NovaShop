@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout-admin :: layout(~{::title}, ~{::main})}">
+<head>
+  <title>Acceso Denegado</title>
+</head>
+<body>
+<main class="admin-main">
+  <div class="container text-center my-5 py-5">
+    <h1 class="display-1 text-danger">403</h1>
+    <h2 class="mb-4">Acceso Denegado</h2>
+    <p class="lead mb-4">
+      Lo sentimos, no tienes los permisos necesarios para acceder a este recurso.
+    </p>
+    <a th:href="@{/admin}" class="btn btn-primary btn-lg">
+      <i class="bi bi-speedometer2 me-2"></i>
+      Volver al Dashboard
+    </a>
+  </div>
+</main>
+</body>
+</html>

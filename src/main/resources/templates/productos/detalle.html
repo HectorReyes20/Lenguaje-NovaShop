@@ -206,7 +206,7 @@
 
                         <!-- Botones de Acción -->
                         <div class="product-actions">
-                            <button type="submit" class="btn btn-primary btn-lg w-100" id="btn-agregar-carrito">
+                            <button type="submit" class="btn btn-primary btn-lg w-100 d-flex justify-content-center" id="btn-agregar-carrito">
                                 <i class="bi bi-cart-plus me-2"></i> Añadir al Carrito
                             </button>
 
@@ -469,7 +469,10 @@
         const stockIndicator = document.getElementById('stockIndicator');
         const stock = variante.stock;
         const cantidadInput = document.getElementById('cantidad');
-        const btnAgregar = document.getElementById('btnAgregar');
+
+        // --- CORRECCIÓN 1 ---
+        // Usar el ID correcto del botón: 'btn-agregar-carrito'
+        const btnAgregar = document.getElementById('btn-agregar-carrito');
 
         stockIndicator.style.display = 'block';
 
@@ -529,56 +532,64 @@
         }
     }
 
+    // --- CORRECCIÓN 2 ---
     // Validar formulario antes de enviar
-    document.getElementById('addToCartForm').addEventListener('submit', function(e) {
+    // Usar el ID correcto del formulario: 'carritoForm'
+    document.getElementById('carritoForm').addEventListener('submit', function(e) {
         const talla = document.querySelector('input[name="talla"]:checked');
         const color = document.querySelector('input[name="color"]:checked');
+        const hayVariantes = variantes && variantes.length > 0;
 
-        if (!talla || !color) {
-            e.preventDefault();
+        // Solo validar si el producto TIENE variantes
+        if (hayVariantes && (!talla || !color)) {
+            e.preventDefault(); // Detener el envío del formulario
             alert('Por favor, selecciona una talla y un color');
             return false;
         }
 
-        // Buscar variante seleccionada
-        const variante = variantes.find(v =>
-            v.talla === talla.value && v.color === color.value
-        );
+        // Buscar variante seleccionada (solo si hay variantes)
+        if (hayVariantes) {
+            const variante = variantes.find(v =>
+                v.talla === talla.value && v.color === color.value
+            );
 
-        if (!variante) {
-            e.preventDefault();
-            alert('Combinación de talla y color no disponible');
-            return false;
+            if (!variante) {
+                e.preventDefault();
+                alert('Combinación de talla y color no disponible');
+                return false;
+            }
+
+            // Establecer ID de variante en el input hidden
+            document.getElementById('idVarianteInput').value = variante.idVariante;
+
+            // Verificar stock
+            const cantidad = parseInt(document.getElementById('cantidad').value);
+            if (cantidad > variante.stock) {
+                e.preventDefault();
+                alert(`Solo hay ${variante.stock} unidades disponibles`);
+                return false;
+            }
         }
-
-        // Establecer ID de variante en el input hidden
-        document.getElementById('idVarianteInput').value = variante.idVariante;
-
-        // Verificar stock
-        const cantidad = parseInt(document.getElementById('cantidad').value);
-        if (cantidad > variante.stock) {
-            e.preventDefault();
-            alert(`Solo hay ${variante.stock} unidades disponibles`);
-            return false;
-        }
+        // Si no hay variantes, el formulario se envía sin idVariante (lo cual está bien)
     });
 
-    // Inicializar: CAMBIO - Botón visible desde el inicio, solo advertir si no hay selección
+    // Inicializar
     document.addEventListener('DOMContentLoaded', function() {
-        const btnAgregar = document.getElementById('btnAgregar');
+        // --- CORRECCIÓN 3 ---
+        // Usar el ID correcto del botón: 'btn-agregar-carrito'
+        const btnAgregar = document.getElementById('btn-agregar-carrito');
 
-        // El botón siempre está visible
-        btnAgregar.style.display = 'flex';
 
-        // Solo deshabilitar si NO hay variantes
+
+        // Solo deshabilitar si SÍ hay variantes
         const hayVariantes = variantes && variantes.length > 0;
 
         if (!hayVariantes) {
-            // Si no hay variantes, el producto no tiene opciones
+            // Si no hay variantes, el producto no tiene opciones, habilitar botón
             btnAgregar.disabled = false;
             console.log('Producto sin variantes - Botón habilitado');
         } else {
-            // Si hay variantes, deshabilitar hasta que se seleccionen
+            // Si hay variantes, deshabilitar hasta que se seleccionen ambas
             btnAgregar.disabled = true;
             console.log('Producto con variantes - Esperando selección');
 
@@ -589,8 +600,9 @@
                     const color = document.querySelector('input[name="color"]:checked');
 
                     if (talla && color) {
-                        btnAgregar.disabled = false;
-                        console.log('Variante seleccionada - Botón habilitado');
+                        // Antes de habilitar, corremos actualizarStock para chequear stock
+                        actualizarStock();
+                        console.log('Variante seleccionada - Botón habilitado (si hay stock)');
                     }
                 });
             });

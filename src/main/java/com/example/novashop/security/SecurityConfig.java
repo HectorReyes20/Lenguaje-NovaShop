@@ -87,9 +87,16 @@ public class SecurityConfig {
                         .deleteCookies("JSESSIONID")
                         .permitAll()
                 )
+
+                // --- INICIO DE LA CORRECCIÓN ---
                 .exceptionHandling(exception -> exception
-                        .accessDeniedPage("/acceso-denegado")
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            // Forzamos una redirección (que siempre usa GET)
+                            response.sendRedirect(request.getContextPath() + "/acceso-denegado");
+                        })
                 )
+                // --- FIN DE LA CORRECCIÓN ---
+
                 .rememberMe(remember -> remember
                         .key("uniqueAndSecretKey")
                         .tokenValiditySeconds(86400) // 24 horas

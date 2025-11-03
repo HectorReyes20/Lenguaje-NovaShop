@@ -13,6 +13,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/carrito")
@@ -113,7 +114,7 @@ public class CarritoViewController {
     }
     @PostMapping("/agregar")
     public String agregarAlCarritoDesdeDetalle(
-            @RequestParam Long idVariante,
+            @RequestParam Optional<Long> idVariante, // <--- 2. CAMBIA A OPTIONAL
             @RequestParam(defaultValue = "1") Integer cantidad,
             @RequestParam(required = false) Long productoId,
             RedirectAttributes redirectAttributes) {
@@ -122,13 +123,22 @@ public class CarritoViewController {
             Long idUsuario = securityUtils.getCurrentUserId()
                     .orElseThrow(() -> new RuntimeException("Debe iniciar sesión"));
 
+            // --- 3. AÑADE ESTA VALIDACIÓN ---
+            // Validamos si idVariante vino vacío o nulo
+            if (idVariante.isEmpty()) {
+                throw new IllegalArgumentException("Debe seleccionar una variante del producto.");
+            }
+            // --- FIN DE LA VALIDACIÓN ---
+
+
             // Validar cantidad
             if (cantidad <= 0) {
                 throw new IllegalArgumentException("La cantidad debe ser mayor a 0");
             }
 
             // Agregar al carrito
-            carritoService.agregarAlCarrito(idUsuario, idVariante, cantidad);
+            // --- 4. USA .get() PARA OBTENER EL VALOR ---
+            carritoService.agregarAlCarrito(idUsuario, idVariante.get(), cantidad);
 
             redirectAttributes.addFlashAttribute("mensaje",
                     "¡Producto agregado al carrito! (" + cantidad + " unidad" + (cantidad > 1 ? "es" : "") + ")");
