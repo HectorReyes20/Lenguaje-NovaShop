@@ -133,6 +133,21 @@ public class HomeController {
         }
     }
 
+    @GetMapping("/nosotros")
+    public String mostrarNosotros(Model model) {
+        model.addAttribute("titulo", "Sobre Nosotros");
+        return "tienda/nosotros";
+    }
+
+    /**
+     * Muestra la página de "Contacto"
+     */
+    @GetMapping("/contacto")
+    public String mostrarContacto(Model model) {
+        model.addAttribute("titulo", "Contacto");
+        return "tienda/contacto";
+    }
+
     //@GetMapping("/ofertas")
     public String ofertas(
             @RequestParam(defaultValue = "0") int page,

@@ -49,6 +49,9 @@ public class SecurityConfig {
                         .requestMatchers("/categorias/**").permitAll()
                         .requestMatchers("/registro", "/login").permitAll()
 
+                        // ===== AÑADIR ESTA LÍNEA =====
+                        .requestMatchers("/nosotros", "/contacto").permitAll()
+                        // ===============================
                         // Recursos estáticos
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/uploads/**").permitAll()
                         .requestMatchers("/webjars/**").permitAll()

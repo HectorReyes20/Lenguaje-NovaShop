@@ -52,10 +52,12 @@
                          class="card-img-top"/>
 
                     <div class="product-actions">
-                        <a th:href="@{'/producto/' + ${producto.idProducto}}" class="btn btn-light" title="Ver detalle">
+                        <a th:href="@{'/productos/' + ${producto.idProducto}}" class="btn btn-light" title="Ver detalle">
                             <i class="bi bi-eye"></i>
                         </a>
-                        <form th:action="@{/carrito/agregar}" method="post" class="d-inline">
+
+                        <form th:action="@{/carrito/agregar}" method="post" class="d-inline"
+                              sec:authorize="!hasRole('ADMIN')">
                             <input type="hidden" name="productoId" th:value="${producto.idProducto}" />
                             <input type="hidden" name="cantidad" value="1" />
                             <button type="submit" class="btn btn-light" title="Añadir al carrito">
@@ -89,7 +91,8 @@
                         </span>
                     </div>
 
-                    <form th:action="@{/carrito/agregar}" method="post" class="mt-auto">
+                    <form th:action="@{/carrito/agregar}" method="post" class="mt-auto"
+                          sec:authorize="!hasRole('ADMIN')">
                         <input type="hidden" name="productoId" th:value="${producto.idProducto}" />
                         <input type="hidden" name="cantidad" value="1" />
                         <button type="submit" class="btn btn-primary w-100">

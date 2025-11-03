@@ -124,7 +124,8 @@
 
 
                     <!-- Formulario de Compra -->
-                    <form id="addToCartForm" th:action="@{/carrito/agregar}" method="post">
+                    <form th:action="@{/carrito/agregar}" method="post" class="mt-4" id="carritoForm"
+                          sec:authorize="!hasRole('ADMIN')">
                         <!-- ID del producto para redirigir de vuelta -->
                         <input type="hidden" name="productoId" th:value="${producto.idProducto}">
 
@@ -205,11 +206,8 @@
 
                         <!-- Botones de Acción -->
                         <div class="product-actions">
-                            <button type="submit"
-                                    class="btn btn-primary btn-add-cart"
-                                    id="btnAgregar">
-                                <i class="bi bi-cart-plus me-2"></i>
-                                Agregar al Carrito
+                            <button type="submit" class="btn btn-primary btn-lg w-100" id="btn-agregar-carrito">
+                                <i class="bi bi-cart-plus me-2"></i> Añadir al Carrito
                             </button>
 
                             <button type="button"
