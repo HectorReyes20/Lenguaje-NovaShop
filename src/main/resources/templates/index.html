@@ -170,58 +170,53 @@
     </div>
 </section>
 
-<section class="flash-sale-section text-white text-center my-5">
-    <div class="container py-5">
-        <div class="row">
-            <div class="col-md-10 col-lg-8 mx-auto">
+<section class="cupon-section-mejorada bg-dark text-white py-5 my-3">
+    <div class="container">
+        <div class="row align-items-center g-4 g-lg-5">
 
-                <h5 class="text-warning fw-bold mb-3" style="letter-spacing: 1px;">
-                    💜 ESPECIAL MES MORADO 💜
-                </h5>
-
-                <h1 class="display-2" style="font-family: 'Playfair Display', serif; font-weight: 900;">
-                    ¡Ofertas de Octubre!
-                </h1>
-
+            <div class="col-lg-7">
+                <h3 class="fw-bold mb-3">
+                    <i class="bi bi-ticket-perforated-fill text-primary me-2"></i>
+                    ¿Tienes un Cupón de Descuento?
+                </h3>
                 <p class="lead mb-4">
-                    Celebra con nosotros y obtén un <strong class="fw-bold text-warning">15% DE DESCUENTO</strong>
-                    en todas las ofertas de la web.
+                    Ingresa tu código promocional y aprovecha ofertas exclusivas
+                    en tus compras.
                 </p>
 
-                <div id="countdown-container" class="flash-countdown d-flex justify-content-center gap-2 gap-sm-3 my-4">
-                    <div class="countdown-box">
-                        <span class="countdown-number" id="countdown-days">--</span>
-                        <span class="countdown-label">Días</span>
+                <div class="coupon-highlight p-3 rounded mb-3">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-lightning-charge-fill fs-3 me-3"></i>
+                        <div>
+                            <h5 class="mb-1">¡CyberWOW Activo!</h5>
+                            <p class="mb-0 small">
+                                Usa <strong>CYBERWOW30</strong> (30% OFF) o <strong>CYBER50</strong> (50% OFF en compras +S/200).
+                            </p>
+                        </div>
                     </div>
-                    <div class="countdown-separator">:</div>
-                    <div class="countdown-box">
-                        <span class="countdown-number" id="countdown-hours">--</span>
-                        <span class="countdown-label">Horas</span>
-                    </div>
-                    <div class="countdown-separator">:</div>
-                    <div class="countdown-box">
-                        <span class="countdown-number" id="countdown-mins">--</span>
-                        <span class="countdown-label">Min</span>
-                    </div>
-                    <div class="countdown-separator d-none d-sm-block">:</div> <div class="countdown-box">
-                    <span class="countdown-number" id="countdown-secs">--</span>
-                    <span class="countdown-label">Seg</span>
                 </div>
-                </div>
+            </div>
 
-                <div id="expired-message" class="d-none">
-                    <h3 class="text-danger">¡La oferta ha terminado!</h3>
-                </div>
+            <div class="col-lg-5">
+                <div class="cupon-input-group-dark">
+                    <i class="bi bi-hash"></i>
+                    <input type="text"
+                           name="codigoCupon"
+                           class="form-control"
+                           placeholder="Ingresa tu código"
+                           id="codigoCupon">
 
-                <p class="h5 mb-4">Usa el cupón: <strong class="flash-coupon">MILAGROS15</strong></p>
-
-                <div class="d-grid d-sm-block">
-                    <a th:href="@{/ofertas}" class="btn btn-warning btn-lg rounded-pill shadow-lg"
-                       style="padding: 0.8rem 2.5rem; font-weight: 600;">
-                        <i class="bi bi-arrow-right-circle me-2"></i>
-                        Ver Todas las Ofertas
-                    </a>
+                    <button type="button"
+                            class="btn btn-primary"
+                            onclick="aplicarCupon()">
+                        <i class="bi bi-check-circle me-2"></i>
+                        Aplicar
+                    </button>
                 </div>
+                <small class="text-white-50 d-block mt-3 text-center">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Cupones disponibles: <strong>CYBERWOW30</strong>, <strong>CYBER50</strong>, <strong>CYBERENVIO</strong>
+                </small>
             </div>
         </div>
     </div>
@@ -531,59 +526,49 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    // Función que se ejecuta cuando el contenido de la página está listo
-    document.addEventListener('DOMContentLoaded', function() {
+    function aplicarCupon() {
+        const codigoCupon = document.getElementById('codigoCupon').value.trim().toUpperCase();
 
-        // --- CONFIGURACIÓN DE LA FECHA LÍMITE ---
-        // La promoción termina el 31 de Octubre a las 23:59:59
-        // (JavaScript cuenta los meses desde 0-11, así que 9 es Octubre)
-        // Usamos el año 2025 basado en la fecha actual.
-        const deadline = new Date(2025, 9, 31, 23, 59, 59).getTime();
-
-        // Seleccionamos los elementos del HTML
-        const daysEl = document.getElementById('countdown-days');
-        const hoursEl = document.getElementById('countdown-hours');
-        const minsEl = document.getElementById('countdown-mins');
-        const secsEl = document.getElementById('countdown-secs');
-
-        const countdownContainer = document.getElementById('countdown-container');
-        const expiredMessage = document.getElementById('expired-message');
-
-        // Función para añadir un '0' delante si el número es menor a 10
-        function pad(number) {
-            return number < 10 ? '0' + number : number;
+        if (!codigoCupon) {
+            alert('Por favor, ingresa un código de cupón');
+            return;
         }
 
-        // Actualizar el contador cada segundo
-        const interval = setInterval(function() {
-            // Fecha y hora actual
-            const now = new Date().getTime();
+        // Validación mejorada con los nuevos cupones CyberWOW
+        const cuponesValidos = {
+            'CYBERWOW30': { tipo: 'porcentaje', valor: 30, minimo: 100 },
+            'CYBER50': { tipo: 'porcentaje', valor: 50, minimo: 200 },
+            'CYBERENVIO': { tipo: 'fijo', valor: 15, minimo: 50 }
+        };
 
-            // Distancia entre la fecha límite y ahora
-            const distance = deadline - now;
+        const cupon = cuponesValidos[codigoCupon];
 
-            // Si el tiempo se acabó
-            if (distance < 0) {
-                clearInterval(interval); // Detener el contador
-                countdownContainer.classList.add('d-none'); // Ocultar el contador
-                expiredMessage.classList.remove('d-none'); // Mostrar mensaje de expirado
+        if (cupon) {
+            // Obtener el subtotal actual
+            const subtotalText = document.querySelector('[th\\:text*="subtotal"]')?.textContent || 'S/ 0.00';
+            const subtotal = parseFloat(subtotalText.replace('S/', '').replace(',', '').trim());
+
+            if (subtotal < cupon.minimo) {
+                alert(`Este cupón requiere una compra mínima de S/ ${cupon.minimo}. Tu subtotal actual es S/ ${subtotal.toFixed(2)}`);
                 return;
             }
 
-            // Cálculos de tiempo
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            let descuento = 0;
+            if (cupon.tipo === 'porcentaje') {
+                descuento = (subtotal * cupon.valor) / 100;
+            } else {
+                descuento = cupon.valor;
+            }
 
-            // Actualizar el HTML
-            daysEl.innerHTML = pad(days);
-            hoursEl.innerHTML = pad(hours);
-            minsEl.innerHTML = pad(minutes);
-            secsEl.innerHTML = pad(seconds);
+            // Mostrar descuento
+            document.getElementById('descuentoRow').style.display = 'flex';
+            document.getElementById('descuentoMonto').textContent = '- S/ ' + descuento.toFixed(2);
 
-        }, 1000); // 1000ms = 1 segundo
-    });
+            alert(`¡Cupón CyberWOW aplicado exitosamente! 🎉\nDescuento: ${cupon.tipo === 'porcentaje' ? cupon.valor + '%' : 'S/ ' + cupon.valor}`);
+        } else {
+            alert('❌ Cupón inválido o expirado.\n\nCupones CyberWOW válidos:\n• CYBERWOW30 (30% OFF, compra mín. S/100)\n• CYBER50 (50% OFF, compra mín. S/200)\n• CYBERENVIO (S/15 OFF, compra mín. S/50)');
+        }
+    }
 </script>
 
 

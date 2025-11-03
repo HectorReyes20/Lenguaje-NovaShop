@@ -194,7 +194,14 @@
                         </h3>
 
                         <div class="cupon-section">
+                            <div class="alert alert-info mb-3" style="border-radius: 15px;">
+                                <i class="bi bi-lightning-charge-fill me-2"></i>
+                                <strong>CyberWOW Activo:</strong> Usa <strong>CYBERWOW30</strong> para 30% OFF
+                                o <strong>CYBER50</strong> para 50% OFF en compras +S/200
+                            </div>
+
                             <div class="cupon-input-group">
+                                <i class="bi bi-hash"></i>
                                 <input type="text"
                                        name="codigoCupon"
                                        class="form-control"
@@ -209,7 +216,7 @@
                             </div>
                             <small class="text-muted d-block mt-2">
                                 <i class="bi bi-info-circle me-1"></i>
-                                Ejemplo: MILAGROS15 para 15% de descuento
+                                Cupones disponibles: <strong>CYBERWOW30</strong>, <strong>CYBER50</strong>, <strong>CYBERENVIO</strong>
                             </small>
                         </div>
                     </div>
@@ -315,23 +322,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    // Seleccionar dirección
-    function selectAddress(radio) {
-        document.querySelectorAll('.address-card').forEach(card => {
-            card.classList.remove('selected');
-        });
-        radio.parentElement.classList.add('selected');
-    }
-
-    // Seleccionar método de pago
-    function selectPayment(radio) {
-        document.querySelectorAll('.payment-method').forEach(method => {
-            method.classList.remove('selected');
-        });
-        radio.parentElement.classList.add('selected');
-    }
-
-    // Aplicar cupón (simulado - debes implementar la lógica real en el backend)
     function aplicarCupon() {
         const codigoCupon = document.getElementById('codigoCupon').value.trim().toUpperCase();
 
@@ -340,52 +330,41 @@
             return;
         }
 
-        // Aquí iría la validación real del cupón con el backend
-        // Por ahora, solo simulamos con el cupón "MILAGROS15"
+        // Validación mejorada con los nuevos cupones CyberWOW
+        const cuponesValidos = {
+            'CYBERWOW30': { tipo: 'porcentaje', valor: 30, minimo: 100 },
+            'CYBER50': { tipo: 'porcentaje', valor: 50, minimo: 200 },
+            'CYBERENVIO': { tipo: 'fijo', valor: 15, minimo: 50 }
+        };
 
-        if (codigoCupon === 'MILAGROS15') {
-            // Mostrar descuento (simulado)
+        const cupon = cuponesValidos[codigoCupon];
+
+        if (cupon) {
+            // Obtener el subtotal actual
+            const subtotalText = document.querySelector('[th\\:text*="subtotal"]')?.textContent || 'S/ 0.00';
+            const subtotal = parseFloat(subtotalText.replace('S/', '').replace(',', '').trim());
+
+            if (subtotal < cupon.minimo) {
+                alert(`Este cupón requiere una compra mínima de S/ ${cupon.minimo}. Tu subtotal actual es S/ ${subtotal.toFixed(2)}`);
+                return;
+            }
+
+            let descuento = 0;
+            if (cupon.tipo === 'porcentaje') {
+                descuento = (subtotal * cupon.valor) / 100;
+            } else {
+                descuento = cupon.valor;
+            }
+
+            // Mostrar descuento
             document.getElementById('descuentoRow').style.display = 'flex';
-            document.getElementById('descuentoMonto').textContent = '- S/ 15.00';
+            document.getElementById('descuentoMonto').textContent = '- S/ ' + descuento.toFixed(2);
 
-            alert('¡Cupón aplicado exitosamente! 15% de descuento');
+            alert(`¡Cupón CyberWOW aplicado exitosamente! 🎉\nDescuento: ${cupon.tipo === 'porcentaje' ? cupon.valor + '%' : 'S/ ' + cupon.valor}`);
         } else {
-            alert('Cupón inválido o expirado');
+            alert('❌ Cupón inválido o expirado.\n\nCupones CyberWOW válidos:\n• CYBERWOW30 (30% OFF, compra mín. S/100)\n• CYBER50 (50% OFF, compra mín. S/200)\n• CYBERENVIO (S/15 OFF, compra mín. S/50)');
         }
     }
-
-    // Validación del formulario
-    document.getElementById('checkoutForm').addEventListener('submit', function(e) {
-        const direccionSeleccionada = document.querySelector('input[name="idDireccionEnvio"]:checked');
-        const metodoPagoSeleccionado = document.querySelector('input[name="metodoPago"]:checked');
-
-        if (!direccionSeleccionada) {
-            e.preventDefault();
-            alert('Por favor, selecciona una dirección de envío');
-            return false;
-        }
-
-        if (!metodoPagoSeleccionado) {
-            e.preventDefault();
-            alert('Por favor, selecciona un método de pago');
-            return false;
-        }
-
-        // Deshabilitar botón para evitar doble envío
-        const btn = document.getElementById('btnPlaceOrder');
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Procesando...';
-    });
-
-    // Prevenir salida accidental
-    window.addEventListener('beforeunload', function (e) {
-        // Solo mostrar si hay datos en el formulario
-        const formModified = document.querySelector('input[name="idDireccionEnvio"]:checked');
-        if (formModified) {
-            e.preventDefault();
-            e.returnValue = '';
-        }
-    });
 </script>
 
 </body>

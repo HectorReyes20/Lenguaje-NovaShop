@@ -947,124 +947,131 @@ footer .d-flex.gap-2 i:hover {
     box-shadow: none;
 }
 /* ============================================ */
-/* PÁGINA DE OFERTAS (TEMÁTICA MES MORADO) */
+/* PÁGINA DE OFERTAS (TEMÁTICA CYBERWOW AZUL) */
 /* ============================================ */
 
-.ofertas-header-nuevo {
+/* Nuevo estilo para el encabezado de la página */
+.page-header-special {
     padding: 1.5rem 0;
     margin-bottom: 2rem;
-    /* Borde inferior temático (morado) */
-    border-bottom: 4px solid #c084fc; /* Morado claro */
+    /* Usamos el gradiente principal del sitio para el borde */
+    border-bottom: 4px solid;
+    border-image-slice: 1;
+    border-image-source: var(--gradient-2);
 }
 
-.ofertas-header-nuevo h1 {
-    color: #581c87; /* Morado oscuro */
-    font-weight: 900; /* Heredado de Playfair Display */
-}
-
-.ofertas-header-nuevo .ofertas-icono-morado {
-    font-size: 2.5rem;
-    vertical-align: middle;
-    display: inline-block;
-    /* Animación sutil de pulso */
-    animation: pulse-morado 2s infinite;
-}
-
-@keyframes pulse-morado {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.15); }
-}
-
-/* Alerta personalizada para el cupón */
-.alert-purple-themed {
-    background-color: #f3e8ff; /* Fondo lavanda muy pálido */
-    border: 1px solid #d8b4fe; /* Borde lavanda */
-    color: #581c87; /* Texto morado oscuro */
-    border-radius: 12px;
-}
-
-.alert-purple-themed .alert-link {
-    color: #581c87;
-    font-weight: 600;
-    text-decoration: underline;
-}
-
-/* Aseguramos que el cupón dentro de la alerta se vea bien.
-   Reutiliza el estilo .flash-coupon pero lo ajusta.
-*/
-.alert-purple-themed .flash-coupon {
-     background: #e9d5ff;
-     color: #3b0764;
-     border: 2px dashed #3b0764;
-     padding: 0.2rem 0.5rem; /* Más pequeño para que quepa en línea */
-     font-size: 0.9em;
-     vertical-align: middle;
-}
-/* ============================================ */
-/* SECCIÓN FLASH SALE (NUEVO DISEÑO - MES MORADO) */
-/* ============================================ */
-
-.flash-sale-section {
-    /* Fondo temático "Mes Morado" */
-    background: linear-gradient(135deg, rgba(55, 26, 100, 0.85), rgba(88, 38, 150, 0.85)),
-                linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)),
-                url('https://images.pexels.com/photos/3755706/pexels-photo-3755706.jpeg');
-    background-size: cover;
-    background-position: center 30%;
-    /* Efecto Parallax: la imagen se queda fija */
-    background-attachment: fixed;
-    border-radius: 20px; /* Bordes redondeados */
-    overflow: hidden;
-    box-shadow: var(--shadow-xl);
-}
-
-/* Cajas del contador */
-.flash-countdown {
-    font-family: 'Inter', sans-serif;
+.page-header-special h1 {
+    font-weight: 900;
+    display: flex;
     align-items: center;
+    gap: 0.75rem;
 }
 
-.countdown-box {
-    /* Efecto "Glassmorphism" (cristal) */
-    background: rgba(255, 255, 255, 0.1);
+/* Icono animado para el encabezado */
+.icon-highlight-blue {
+    font-size: 2.5rem;
+    /* Usamos el gradiente de texto que ya tienes */
+    background: var(--gradient-2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: pulse-blue 2s infinite;
+}
+
+/* Animación de pulso con la paleta de azules */
+@keyframes pulse-blue {
+    0%, 100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 3px rgba(59, 130, 246, 0.4));
+    }
+    50% {
+        transform: scale(1.15);
+        filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.8));
+    }
+}
+
+/* Nueva alerta de oferta especial, alineada con la paleta */
+.alert-special-offer {
+    background-color: rgba(59, 130, 246, 0.08); /* Fondo azul muy pálido */
+    border: 1px solid var(--accent); /* Borde azul */
+    color: var(--dark); /* Texto oscuro principal */
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+}
+
+.alert-special-offer .alert-heading {
+    color: var(--primary); /* Título en azul primario */
+    font-weight: 700;
+}
+
+.alert-special-offer .alert-heading .bi-lightning-charge-fill {
+    color: #f59e0b; /* Mantenemos el rayo amarillo para "impacto" */
+}
+
+/* Estilo para el cupón dentro de la nueva alerta */
+.flash-coupon-blue {
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--primary);
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    font-weight: 700;
+    border: 1px dashed var(--accent);
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.5px;
+}
+/* ============================================ */
+/* SECCIÓN CUPONES (DISEÑO MEJORADO) */
+/* ============================================ */
+
+/* Reemplazamos el antiguo .flash-sale-section */
+.cupon-section-mejorada {
+    border-radius: 20px;
+    box-shadow: var(--shadow-lg);
+    /* Usamos el fondo oscuro estándar del sitio en lugar del morado */
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+/* Estilo para la nueva alerta de cupón */
+.coupon-highlight {
+    background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-    padding: 1rem;
-    /* Ajustamos el ancho para 4 cajas */
-    width: 85px;
     backdrop-filter: blur(5px);
 }
 
-.countdown-box .countdown-number {
-    font-size: 2.2rem; /* Un poco más pequeño para que quepa */
-    font-weight: 700;
-    display: block;
-    line-height: 1;
+.coupon-highlight .bi-lightning-charge-fill {
+    color: #f59e0b; /* Color ámbar/amarillo para la alerta */
+}
+
+/* Estilo para el grupo de input en fondo oscuro */
+.cupon-input-group-dark {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50px; /* Bordes redondeados */
+    padding: 0.5rem;
+    padding-left: 1.25rem;
+}
+
+.cupon-input-group-dark .bi-hash {
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.cupon-input-group-dark .form-control {
+    background: transparent;
+    border: none;
     color: #fff;
+    box-shadow: none;
 }
 
-.countdown-box .countdown-label {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.7);
-    letter-spacing: 1px;
+.cupon-input-group-dark .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.6);
 }
 
-.countdown-separator {
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: rgba(255, 255, 255, 0.5);
-    padding: 0 0.4rem;
-}
-
-/* Estilo del cupón temático */
-.flash-coupon {
-    background: #e9d5ff; /* Morado muy claro (lavanda) */
-    color: #3b0764; /* Morado oscuro */
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    font-weight: 700;
-    border: 2px dashed #3b0764;
-    font-family: 'Inter', sans-serif;
-    letter-spacing: 1px;
+.cupon-input-group-dark .btn-primary {
+    /* Aseguramos que el botón primario (que es un gradiente)
+       funcione bien aquí y sea redondeado */
+    border-radius: 50px !important;
+    padding: 0.75rem 1.5rem;
+    flex-shrink: 0; /* Evita que el botón se encoja */
 }
