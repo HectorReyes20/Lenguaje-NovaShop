@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titulo} + ' - Admin NovaShop'">Formulario de Categoría</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body>
+
+<nav class="admin-topbar">
+    <div class="d-flex align-items-center">
+        <a th:href="@{/admin}" class="admin-logo">
+            <i class="bi bi-shield-check"></i>
+            <span>NovaShop Admin</span>
+        </a>
+    </div>
+    <div class="d-flex align-items-center gap-3">
+        <div class="dropdown">
+            <button class="btn btn-link text-dark position-relative" data-bs-toggle="dropdown">
+                <i class="bi bi-bell fs-5"></i>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                      th:if="${pedidosPendientes != null && pedidosPendientes > 0}"
+                      th:text="${pedidosPendientes}">0</span>
+            </button>
+        </div>
+        <div class="dropdown">
+            <button class="btn btn-link text-dark d-flex align-items-center" data-bs-toggle="dropdown">
+                <i class="bi bi-person-circle fs-4 me-2"></i>
+                <span sec:authentication="name">Admin</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" th:href="@{/}"><i class="bi bi-shop me-2"></i> Ver Tienda</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <form th:action="@{/logout}" method="post">
+                        <button type="submit" class="dropdown-item text-danger">
+                            <i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<aside class="admin-sidebar">
+    <ul class="sidebar-nav">
+        <li class="nav-section-title">Principal</li>
+        <li class="sidebar-nav-item">
+            <a th:href="@{/admin}" class="sidebar-nav-link" th:classappend="${activePage == 'dashboard'} ? 'active'">
+                <i class="bi bi-speedometer2"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+
+        <li class="nav-section-title">Gestión</li>
+        <li class="sidebar-nav-item">
+            <a th:href="@{/admin/productos}" class="sidebar-nav-link" th:classappend="${activePage == 'productos'} ? 'active'">
+                <i class="bi bi-box-seam"></i>
+                <span>Productos</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a th:href="@{/admin/categorias}" class="sidebar-nav-link" th:classappend="${activePage == 'categorias'} ? 'active'">
+                <i class="bi bi-grid-3x3"></i>
+                <span>Categorías</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a th:href="@{/admin/pedidos}" class="sidebar-nav-link" th:classappend="${activePage == 'pedidos'} ? 'active'">
+                <i class="bi bi-clipboard-check"></i>
+                <span>Pedidos</span>
+                <span class="badge bg-danger ms-auto"
+                      th:if="${pedidosPendientes != null && pedidosPendientes > 0}"
+                      th:text="${pedidosPendientes}">0</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a th:href="@{/admin/usuarios}" class="sidebar-nav-link" th:classappend="${activePage == 'usuarios'} ? 'active'">
+                <i class="bi bi-people"></i>
+                <span>Usuarios</span>
+            </a>
+        </li>
+    </ul>
+</aside>
+
+<main class="admin-main">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2" th:text="${titulo}">Formulario de Categoría</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a th:href="@{/admin/categorias}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Volver a la Lista
+            </a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="content-card">
+                <form th:action="@{/admin/categorias/guardar}"
+                      th:object="${categoria}"
+                      method="post"
+                      class="p-4">
+
+                    <input type="hidden" th:field="*{idCategoria}">
+
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre de la Categoría</label>
+                        <input type="text" class="form-control" id="nombre"
+                               th:field="*{nombre}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="descripcion" rows="3"
+                                  th:field="*{descripcion}"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="imagenUrl" class="form-label">URL de la Imagen (Opcional)</label>
+                        <input type="text" class="form-control" id="imagenUrl"
+                               th:field="*{imagenUrl}" placeholder="Ej: /images/categorias/ropa.jpg">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="estado" class="form-label">Estado</label>
+                        <select class="form-select" id="estado" th:field="*{estado}" required>
+                            <option th:each="e : ${estados}"
+                                    th:value="${e}"
+                                    th:text="${e.name()}">
+                                ACTIVO
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="text-end border-top pt-3 mt-4">
+                        <a th:href="@{/admin/categorias}" class="btn btn-secondary me-2">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save me-2"></i> Guardar Categoría
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

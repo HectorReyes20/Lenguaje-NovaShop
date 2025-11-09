@@ -2,6 +2,7 @@ package com.example.novashop.controller;
 
 import com.example.novashop.model.*;
 import com.example.novashop.service.*;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -604,16 +605,88 @@ public class AdminController {
      * Gestión de Categorías
      */
     @GetMapping("/categorias")
-    public String gestionCategorias(Model model) {
-        List<Categoria> categorias = categoriaService.obtenerTodas();
+    public String gestionCategorias(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "15") int size,
+            Model model) {
 
-        model.addAttribute("categorias", categorias);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("nombre").ascending());
+        Page<Categoria> paginaCategorias = categoriaService.listarCategoriasPaginado(pageable);
+
+        model.addAttribute("paginaCategorias", paginaCategorias);
         model.addAttribute("titulo", "Gestión de Categorías");
         model.addAttribute("activePage", "categorias");
 
-        return "admin/categorias";
+        // ---
+        // --- ¡¡AQUÍ ESTÁ LA CORRECCIÓN!! ---
+        // ---
+        // Pasamos el servicio al modelo para que Thymeleaf pueda llamarlo
+        model.addAttribute("categoriaService", categoriaService);
+        // ---
+        // --- FIN DE LA CORRECCIÓN ---
+        // ---
+
+        return "admin/categorias"; //
     }
 
+    @GetMapping("/categorias/nueva")
+    public String mostrarFormularioNuevaCategoria(Model model) {
+        Categoria categoria = new Categoria();
+        categoria.setEstado(Categoria.EstadoCategoria.ACTIVO); // Valor por defecto
+
+        model.addAttribute("categoria", categoria);
+        model.addAttribute("titulo", "Nueva Categoría");
+        model.addAttribute("activePage", "categorias");
+        // Pasamos los valores del Enum para el <select>
+        model.addAttribute("estados", Categoria.EstadoCategoria.values());
+
+        return "admin/categoria-form"; // El nuevo HTML de formulario
+    }
+
+    @GetMapping("/categorias/editar/{id}")
+    public String mostrarFormularioEditarCategoria(@PathVariable Long id, Model model) {
+        Categoria categoria = categoriaService.obtenerPorId(id)
+                .orElseThrow(() -> new EntityNotFoundException("Categoría no encontrada"));
+
+        model.addAttribute("categoria", categoria);
+        model.addAttribute("titulo", "Editar Categoría");
+        model.addAttribute("activePage", "categorias");
+        // Pasamos los valores del Enum para el <select>
+        model.addAttribute("estados", Categoria.EstadoCategoria.values());
+
+        return "admin/categoria-form";
+    }
+
+    /**
+     * PROCESA EL FORMULARIO (Guarda o Actualiza)
+     */
+    @PostMapping("/categorias/guardar")
+    public String guardarCategoria(
+            @ModelAttribute Categoria categoria,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            categoriaService.guardar(categoria);
+            redirectAttributes.addFlashAttribute("mensaje", "Categoría guardada exitosamente");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al guardar: " + e.getMessage());
+        }
+        return "redirect:/admin/categorias";
+    }
+
+    /**
+     * CAMBIA EL ESTADO (Activa/Desactiva) - Reemplazo de "Eliminar"
+     */
+    @PostMapping("/categorias/cambiar-estado/{id}")
+    public String cambiarEstadoCategoria(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            categoriaService.cambiarEstado(id);
+            redirectAttributes.addFlashAttribute("mensaje", "Estado de la categoría cambiado");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/admin/categorias";
+    }
     /**
      * Reportes
      */

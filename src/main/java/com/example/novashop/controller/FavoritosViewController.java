@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import jakarta.servlet.http.HttpServletRequest; // <-- AÑADIR IMPORT
 
 @Controller
 @RequestMapping("/favoritos")
@@ -41,7 +42,8 @@ public class FavoritosViewController {
     @PostMapping("/agregar/{idProducto}")
     public String agregarFavorito(
             @PathVariable Long idProducto,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            HttpServletRequest request) { // <-- AÑADIR REQUEST
 
         try {
             Long idUsuario = securityUtils.getCurrentUserId()
@@ -55,13 +57,18 @@ public class FavoritosViewController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
 
-        return "redirect:/favoritos";
+        // --- CORRECCIÓN ---
+        // Redirigir a la página anterior
+        String referer = request.getHeader("Referer");
+        return "redirect:" + (referer != null ? referer : "/");
+        // --- FIN CORRECCIÓN ---
     }
 
     @PostMapping("/eliminar/{idProducto}")
     public String eliminarFavorito(
             @PathVariable Long idProducto,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            HttpServletRequest request) { // <-- AÑADIR REQUEST
 
         Long idUsuario = securityUtils.getCurrentUserId()
                 .orElseThrow(() -> new RuntimeException("Debe iniciar sesión"));
@@ -69,6 +76,10 @@ public class FavoritosViewController {
         favoritoService.eliminar(idUsuario, idProducto);
         redirectAttributes.addFlashAttribute("mensaje", "Producto eliminado de favoritos");
 
-        return "redirect:/favoritos";
+        // --- CORRECCIÓN ---
+        // Redirigir a la página anterior
+        String referer = request.getHeader("Referer");
+        return "redirect:" + (referer != null ? referer : "/");
+        // --- FIN CORRECCIÓN ---
     }
 }

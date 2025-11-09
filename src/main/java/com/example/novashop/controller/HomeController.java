@@ -10,7 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.ui.Model;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
+import java.util.Optional;
 
 import java.util.List;
 @Controller
@@ -21,6 +21,7 @@ public class HomeController {
     private final ProductoService productoService;
     private final CategoriaService categoriaService;
     private final SecurityUtils securityUtils;
+    private final FavoritoService favoritoService; // <-- 1. INYECTAR EL SERVICIO
 
     @GetMapping({"/", "/home", "/index"})
     public String home(Model model) {
@@ -109,14 +110,19 @@ public class HomeController {
 
             Double calificacion = productoService.obtenerCalificacionPromedio(id);
 
+            // --- INICIO DE LA CORRECCIÓN ---
+            // 2. REEMPLAZAR EL BLOQUE TODO
             boolean esFavorito = false;
+            // Verificamos si el usuario está autenticado
             if (securityUtils.isAuthenticated()) {
-                Long idUsuario = securityUtils.getCurrentUserId().orElse(null);
-                if (idUsuario != null) {
-                    // TODO: Implementar cuando tengas FavoritoService
-                    // esFavorito = favoritoService.esFavorito(idUsuario, id);
+                // Obtenemos el ID del usuario
+                Optional<Long> idUsuarioOpt = securityUtils.getCurrentUserId();
+                if (idUsuarioOpt.isPresent()) {
+                    // Usamos el FavoritoService (que ya inyectamos)
+                    esFavorito = favoritoService.esFavorito(idUsuarioOpt.get(), id);
                 }
             }
+            // --- FIN DE LA CORRECCIÓN ---
 
             model.addAttribute("producto", producto);
             model.addAttribute("relacionados", relacionados);

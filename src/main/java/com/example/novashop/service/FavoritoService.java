@@ -21,6 +21,11 @@ public class FavoritoService {
 
     private final FavoritoRepository favoritoRepository;
 
+    // --- INICIO DE LA CORRECCIÓN ---
+    // 1. Añade los repositorios que faltan
+    private final UsuarioRepository usuarioRepository;
+    private final ProductoRepository productoRepository;
+    // --- FIN DE LA CORRECCIÓN ---
     public Page<Favorito> obtenerFavoritosUsuario(Long idUsuario, Pageable pageable) {
         return favoritoRepository.findByUsuarioIdUsuarioOrderByFechaAgregadoDesc(
                 idUsuario, pageable);
@@ -33,9 +38,23 @@ public class FavoritoService {
             throw new RuntimeException("El producto ya está en favoritos");
         }
 
-        Favorito favorito = new Favorito();
+        // --- ESTA ES LA LÓGICA QUE FALTA ---
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        Producto producto = productoRepository.findById(idProducto)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        Favorito favorito = Favorito.builder()
+                .usuario(usuario)
+                .producto(producto)
+                .build();
+        // --- FIN DE LA LÓGICA QUE FALTA ---
+
+        // El @PrePersist en el modelo Favorito se encargará de la fechaAgregado
+
         return favoritoRepository.save(favorito);
     }
+    // --- FIN DE LA CORRECCIÓN ---
 
     public void eliminar(Long idUsuario, Long idProducto) {
         log.info("Eliminando de favoritos. Usuario: {}, Producto: {}", idUsuario, idProducto);

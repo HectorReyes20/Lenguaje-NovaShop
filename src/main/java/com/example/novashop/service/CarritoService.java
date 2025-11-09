@@ -106,8 +106,13 @@ public class CarritoService {
     }
 
     public BigDecimal calcularTotal(Long idUsuario) {
-        BigDecimal total = carritoRepository.calcularTotalCarrito(idUsuario);
-        return total != null ? total : BigDecimal.ZERO;
+        // 1. Obtener todos los items (igual que en tu método obtenerCarritoUsuario)
+        List<Carrito> items = carritoRepository.findByUsuarioIdUsuario(idUsuario);
+
+        // 2. Sumar sus subtotales (usando el método getSubtotal() de Carrito.java)
+        return items.stream()
+                .map(Carrito::getSubtotal) // <-- Llama al método getSubtotal() que SÍ es correcto
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     public Long contarItems(Long idUsuario) {
