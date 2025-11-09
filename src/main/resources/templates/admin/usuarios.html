@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titulo} + ' - Admin NovaShop'">Gestión de Usuarios</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body>
+
+<nav class="admin-topbar" th:replace="~{admin/dashboard :: .admin-topbar}"></nav>
+
+<aside class="admin-sidebar" th:fragment="sidebar">
+    <ul class="sidebar-nav">
+        <li class="nav-section-title">Principal</li>
+        <li class="sidebar-nav-item">
+            <a th:href="@{/admin}" class="sidebar-nav-link" th:classappend="${activePage == 'dashboard'} ? 'active'">
+                <i class="bi bi-speedometer2"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+        <li class="nav-section-title">Gestión</li>
+        <li class="sidebar-nav-item">
+            <a th:href="@{/admin/productos}" class="sidebar-nav-link" th:classappend="${activePage == 'productos'} ? 'active'">
+                <i class="bi bi-box-seam"></i>
+                <span>Productos</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a th:href="@{/admin/categorias}" class="sidebar-nav-link" th:classappend="${activePage == 'categorias'} ? 'active'">
+                <i class="bi bi-grid-3x3"></i>
+                <span>Categorías</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a th:href="@{/admin/pedidos}" class="sidebar-nav-link" th:classappend="${activePage == 'pedidos'} ? 'active'">
+                <i class="bi bi-clipboard-check"></i>
+                <span>Pedidos</span>
+                <span class="badge bg-danger ms-auto"
+                      th:if="${pedidosPendientes != null && pedidosPendientes > 0}"
+                      th:text="${pedidosPendientes}">0</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a th:href="@{/admin/usuarios}" class="sidebar-nav-link" th:classappend="${activePage == 'usuarios'} ? 'active'">
+                <i class="bi bi-people"></i>
+                <span>Usuarios</span>
+            </a>
+        </li>
+    </ul>
+</aside>
+
+<main class="admin-main">
+
+    <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>
+        <span th:text="${mensaje}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2" th:text="${titulo}">Gestión de Usuarios</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a th:href="@{/admin/usuarios/nuevo}" class="btn btn-sm btn-primary">
+                <i class="bi bi-person-plus-fill me-1"></i> Nuevo Usuario
+            </a>
+        </div>
+    </div>
+
+    <div class="content-card mb-4">
+        <form th:action="@{/admin/usuarios}" method="get" class="p-4">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="buscar" class="form-label">Buscar por nombre o email</label>
+                    <input type="text" class="form-control" id="buscar" name="buscar" th:value="${buscar}">
+                </div>
+                <div class="col-md-3">
+                    <label for="rol" class="form-label">Filtrar por Rol</label>
+                    <select id="rol" name="rol" class="form-select">
+                        <option value="">Todos los Roles</option>
+                        <option th:each="r : ${roles}"
+                                th:value="${r}"
+                                th:text="${r.name()}"
+                                th:selected="${r == rol}">
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="estado" class="form-label">Filtrar por Estado</label>
+                    <select id="estado" name="estado" class="form-select">
+                        <option value="">Todos los Estados</option>
+                        <option th:each="e : ${estados}"
+                                th:value="${e}"
+                                th:text="${e.name()}"
+                                th:selected="${e == estado}">
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search me-1"></i> Filtrar
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+    <div class="content-card">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Email / Teléfono</th>
+                    <th scope="col">Rol</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col">Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user : ${paginaUsuarios.content}">
+                    <td th:text="${user.idUsuario}">1</td>
+                    <td th:text="${user.nombre + ' ' + user.apellido}">Juan Pérez</td>
+                    <td>
+                        <div th:text="${user.email}"></div>
+                        <small class="text-muted" th:text="${user.telefono}"></small>
+                    </td>
+                    <td>
+                        <form th:action="@{/admin/usuarios/cambiar-rol/{id}(id=${user.idUsuario})}" method="post" class="d-flex">
+                            <select name="nuevoRol" class="form-select form-select-sm"
+                                    onchange="this.form.submit()"
+                                    th:disabled="${user.email == #authentication.name}">
+                                <option th:each="r : ${roles}"
+                                        th:value="${r}"
+                                        th:text="${r.name()}"
+                                        th:selected="${r == user.rol}">
+                                </option>
+                            </select>
+                        </form>
+                    </td>
+                    <td>
+                        <form th:action="@{/admin/usuarios/cambiar-estado/{id}(id=${user.idUsuario})}" method="post">
+                            <div class="form-check form-switch" th:if="${user.email != #authentication.name}">
+                                <input type="hidden" name="nuevoEstado" th:value="${user.estado == T(com.example.novashop.model.Usuario.EstadoUsuario).ACTIVO ? 'BLOQUEADO' : 'ACTIVO'}">
+                                <input class="form-check-input" type="checkbox" role="switch"
+                                       th:id="'switchEstado' + ${user.idUsuario}"
+                                       th:checked="${user.estado == T(com.example.novashop.model.Usuario.EstadoUsuario).ACTIVO}"
+                                       onchange="this.form.submit()"
+                                       th:title="${user.estado == T(com.example.novashop.model.Usuario.EstadoUsuario).ACTIVO ? 'Activo (Clic para bloquear)' : 'Bloqueado (Clic para activar)'}">
+                            </div>
+                            <span th:if="${user.email == #authentication.name}"
+                                  class="badge bg-success" th:text="${user.estado}">
+                            </span>
+                        </form>
+                    </td>
+                    <td>
+                        <a th:href="@{/admin/usuarios/detalle/{id}(id=${user.idUsuario})}" class="btn btn-sm btn-outline-primary" title="Ver Detalles">
+                            <i class="bi bi-eye-fill"></i>
+                        </a>
+                        <a th:href="@{/admin/usuarios/editar/{id}(id=${user.idUsuario})}" class="btn btn-sm btn-outline-warning" title="Editar">
+                            <i class="bi bi-pencil-fill"></i>
+                        </a>
+                    </td>
+                </tr>
+                <tr th:if="${paginaUsuarios.isEmpty()}">
+                    <td colspan="6" class="text-center text-muted py-4">No se encontraron usuarios.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <nav th:if="${paginaUsuarios.totalPages > 1}" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${paginaUsuarios.first} ? 'disabled'">
+                <a class="page-link" th:href="@{/admin/usuarios(page=${paginaUsuarios.number - 1}, buscar=${buscar}, rol=${rol}, estado=${estado})}">Anterior</a>
+            </li>
+
+            <li class="page-item" th:each="i : ${#numbers.sequence(0, paginaUsuarios.totalPages - 1)}"
+                th:classappend="${i == paginaUsuarios.number} ? 'active'">
+                <a class="page-link" th:href="@{/admin/usuarios(page=${i}, buscar=${buscar}, rol=${rol}, estado=${estado})}" th:text="${i + 1}">1</a>
+            </li>
+
+            <li class="page-item" th:classappend="${paginaUsuarios.last} ? 'disabled'">
+                <a class="page-link" th:href="@{/admin/usuarios(page=${paginaUsuarios.number + 1}, buscar=${buscar}, rol=${rol}, estado=${estado})}">Siguiente</a>
+            </li>
+        </ul>
+    </nav>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

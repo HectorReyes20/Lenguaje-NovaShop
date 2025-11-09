@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import com.example.novashop.model.Direccion; // <-- AÑADIR IMPORT
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -36,8 +37,18 @@ public class AdminController {
     private final UsuarioService usuarioService;
     private final CategoriaService categoriaService;
     private final VarianteProductoService varianteService;
+    private final DireccionService direccionService; // <-- AÑADIR SERVICIO
     private final ImagenProductoService imagenService;
     private final String UPLOAD_DIR = "uploads/productos/";
+
+    /**
+     * MÉTODO NUEVO: Añade 'pedidosPendientes' a todas las vistas
+     * para que el sidebar funcione siempre.
+     */
+    @ModelAttribute("pedidosPendientes")
+    public Long pedidosPendientes() {
+        return pedidoService.contarPorEstado(Pedido.EstadoPedido.PENDIENTE);
+    }
 
     /**
      * Dashboard Principal con Estadísticas
@@ -59,7 +70,7 @@ public class AdminController {
         long totalProductos = productoService.obtenerProductosActivos(PageRequest.of(0, 1)).getTotalElements();
 
         // Total de usuarios
-        long totalUsuarios = usuarioService.obtenerTodos().size();
+        long totalUsuarios = usuarioService.contarTotalUsuarios();
 
         // Pedidos pendientes
         long pedidosPendientes = pedidoService.obtenerPorEstado(
@@ -591,14 +602,140 @@ public class AdminController {
      * Gestión de Usuarios
      */
     @GetMapping("/usuarios")
-    public String gestionUsuarios(Model model) {
-        List<Usuario> usuarios = usuarioService.obtenerTodos();
+    public String gestionUsuarios(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "15") int size,
+            @RequestParam(required = false) String buscar,
+            @RequestParam(required = false) Usuario.RolUsuario rol,
+            @RequestParam(required = false) Usuario.EstadoUsuario estado,
+            Model model) {
 
-        model.addAttribute("usuarios", usuarios);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("idUsuario").descending());
+
+        // Llamamos al nuevo método del servicio
+        Page<Usuario> paginaUsuarios = usuarioService.listarUsuarios(buscar, rol, estado, pageable);
+
+        model.addAttribute("paginaUsuarios", paginaUsuarios);
         model.addAttribute("titulo", "Gestión de Usuarios");
         model.addAttribute("activePage", "usuarios");
 
-        return "admin/usuarios";
+        // Pasamos los enums para los dropdowns de filtro
+        model.addAttribute("roles", Usuario.RolUsuario.values());
+        model.addAttribute("estados", Usuario.EstadoUsuario.values());
+
+        // Devolvemos los parámetros de filtro para que los inputs/selects los recuerden
+        model.addAttribute("buscar", buscar);
+        model.addAttribute("rol", rol);
+        model.addAttribute("estado", estado);
+
+        return "admin/usuarios"; // El HTML que crearemos
+    }
+
+    /**
+     * MÉTODO NUEVO: Muestra el formulario para crear un usuario.
+     */
+    @GetMapping("/usuarios/nuevo")
+    public String mostrarFormularioNuevoUsuario(Model model) {
+        Usuario usuario = new Usuario();
+        usuario.setEstado(Usuario.EstadoUsuario.ACTIVO); // Valor por defecto
+
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("titulo", "Nuevo Usuario");
+        model.addAttribute("activePage", "usuarios");
+        model.addAttribute("roles", Usuario.RolUsuario.values());
+        model.addAttribute("estados", Usuario.EstadoUsuario.values());
+
+        return "admin/usuario-form"; // El nuevo HTML que crearemos
+    }
+
+    /**
+     * MÉTODO NUEVO: Muestra el formulario para editar un usuario.
+     */
+    @GetMapping("/usuarios/editar/{id}")
+    public String mostrarFormularioEditarUsuario(@PathVariable Long id, Model model) {
+        Usuario usuario = usuarioService.obtenerPorId(id)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
+
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("titulo", "Editar Usuario");
+        model.addAttribute("activePage", "usuarios");
+        model.addAttribute("roles", Usuario.RolUsuario.values());
+        model.addAttribute("estados", Usuario.EstadoUsuario.values());
+
+        return "admin/usuario-form";
+    }
+
+    /**
+     * MÉTODO NUEVO: Procesa el guardado (Crear o Actualizar).
+     */
+    @PostMapping("/usuarios/guardar")
+    public String guardarUsuario(@ModelAttribute Usuario usuario, RedirectAttributes redirectAttributes) {
+        try {
+            usuarioService.adminGuardarUsuario(usuario);
+            redirectAttributes.addFlashAttribute("mensaje", "Usuario guardado exitosamente");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al guardar: " + e.getMessage());
+        }
+        return "redirect:/admin/usuarios";
+    }
+
+    @PostMapping("/usuarios/cambiar-rol/{id}")
+    public String cambiarRolUsuario(
+            @PathVariable Long id,
+            @RequestParam Usuario.RolUsuario nuevoRol,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            usuarioService.cambiarRol(id, nuevoRol);
+            redirectAttributes.addFlashAttribute("mensaje", "Rol del usuario actualizado");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al cambiar el rol: " + e.getMessage());
+        }
+        return "redirect:/admin/usuarios";
+    }
+
+    @PostMapping("/usuarios/cambiar-estado/{id}")
+    public String cambiarEstadoUsuario(
+            @PathVariable Long id,
+            @RequestParam Usuario.EstadoUsuario nuevoEstado,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            usuarioService.cambiarEstado(id, nuevoEstado);
+            redirectAttributes.addFlashAttribute("mensaje", "Estado del usuario actualizado");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al cambiar el estado: " + e.getMessage());
+        }
+        return "redirect:/admin/usuarios";
+    }
+
+    @GetMapping("/usuarios/detalle/{id}")
+    public String detalleUsuario(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            Model model) {
+
+        // 1. Obtener el usuario (o lanzar error)
+        Usuario usuario = usuarioService.obtenerPorId(id)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con ID: " + id));
+
+        // 2. Obtener sus direcciones
+        List<Direccion> direcciones = direccionService.obtenerDireccionesUsuario(id);
+
+        // 3. Obtener sus pedidos paginados
+        Pageable pageable = PageRequest.of(page, size, Sort.by("fechaPedido").descending());
+        Page<Pedido> paginaPedidos = pedidoService.obtenerPedidosUsuario(id, pageable);
+
+        // 4. Enviar todo al modelo
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("direcciones", direcciones);
+        model.addAttribute("paginaPedidos", paginaPedidos);
+
+        model.addAttribute("titulo", "Detalle de Usuario");
+        model.addAttribute("activePage", "usuarios");
+
+        return "admin/usuario-detalle"; // El nuevo HTML que crearemos
     }
 
     /**
