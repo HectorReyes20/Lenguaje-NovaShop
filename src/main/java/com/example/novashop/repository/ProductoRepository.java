@@ -150,4 +150,5 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
     // --- MÉTODO SIN CAMBIOS ---
     Long countByCategoriaIdCategoriaAndEstado(Long idCategoria, Producto.EstadoProducto estado);
 
+    long countByCategoriaIdCategoria(Long idCategoria);
 }

@@ -52,6 +52,7 @@ public class Categoria {
     @JsonManagedReference("producto-categoria") // <-- AÑADE ESTA LÍNEA
     private List<Producto> productos = new ArrayList<>();
 
+
     // Enum
     public enum EstadoCategoria {
         ACTIVO, INACTIVO

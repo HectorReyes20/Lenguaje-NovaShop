@@ -42,7 +42,6 @@ public class ProductoViewController {
 
         String[] sortParams = sort.split(",");
         Sort.Direction direction = sortParams[1].equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        // Creamos el objeto Pageable con el tamaño correcto (size)
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortParams[0]));
 
         Page<Producto> paginaProductos;
@@ -59,7 +58,6 @@ public class ProductoViewController {
                 tituloPagina = "Ropa para " + genero.substring(0, 1).toUpperCase() + genero.substring(1).toLowerCase();
             } catch (IllegalArgumentException e) {
                 log.warn("Género no válido recibido: {}", genero);
-                // Si el género es inválido, mostramos activos por defecto
                 paginaProductos = productoService.obtenerProductosActivos(pageable);
                 tituloPagina = "Género no encontrado";
             }
@@ -74,14 +72,14 @@ public class ProductoViewController {
             }
 
         } else {
-            // ================= CORRECCIÓN PARA "TODOS LOS PRODUCTOS" =================
-            // Usamos obtenerProductosActivos para asegurarnos de filtrar por estado ACTIVO
-            // y respetar el tamaño de página 'size'.
             paginaProductos = productoService.obtenerProductosActivos(pageable);
-            // =======================================================================
         }
 
-        List<Categoria> categorias = categoriaService.obtenerTodas();
+        // --- INICIO DE LA CORRECCIÓN ---
+        // Se llama a obtenerActivas() en lugar de obtenerTodas()
+        // para mostrar solo las categorías activas en el filtro.
+        List<Categoria> categorias = categoriaService.obtenerActivas();
+        // --- FIN DE LA CORRECCIÓN ---
 
         model.addAttribute("paginaProductos", paginaProductos);
         model.addAttribute("categorias", categorias);
@@ -89,7 +87,6 @@ public class ProductoViewController {
         model.addAttribute("sort", sort);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", paginaProductos.getTotalPages());
-        // Ya no necesitamos pasar 'filtroActivo' al modelo
 
         return "tienda/productos";
     }

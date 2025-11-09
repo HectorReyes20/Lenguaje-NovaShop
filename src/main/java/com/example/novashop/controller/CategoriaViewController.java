@@ -14,8 +14,15 @@ public class CategoriaViewController {
 
     @GetMapping("/categorias")
     public String verTodasLasCategorias(Model model) {
-        // CORRECCIÓN AQUÍ:
-        model.addAttribute("categorias", categoriaService.obtenerTodas());
+
+        // --- INICIO DE LA CORRECCIÓN ---
+        // Se llama a obtenerActivas() en lugar de obtenerTodas()
+        // para mostrar solo las categorías activas a los clientes.
+        model.addAttribute("categorias", categoriaService.obtenerActivas());
+        // --- FIN DE LA CORRECCIÓN ---
+
+        model.addAttribute("titulo", "Nuestras Categorías"); // (Añadí un título para consistencia)
+
         return "tienda/categorias";
     }
 }

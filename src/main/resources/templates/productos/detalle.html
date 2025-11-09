@@ -203,20 +203,37 @@
                                 </button>
                             </div>
                         </div>
-
+                    </form>
                         <!-- Botones de Acción -->
                         <div class="product-actions">
-                            <button type="submit" class="btn btn-primary btn-lg w-100 d-flex justify-content-center" id="btn-agregar-carrito">
+
+                            <button type="submit"
+                                    form="carritoForm"
+                                    class="btn btn-primary btn-lg w-100 d-flex justify-content-center"
+                                    id="btn-agregar-carrito">
                                 <i class="bi bi-cart-plus me-2"></i> Añadir al Carrito
                             </button>
 
-                            <button type="button"
-                                    class="btn btn-favorite"
-                                    onclick="toggleFavorito()">
-                                <i class="bi bi-heart" id="favoritoIcon"></i>
-                            </button>
+                            <form th:action="@{/favoritos/agregar/{id}(id=${producto.idProducto})}"
+                                  method="post"
+                                  th:if="${!esFavorito}"
+                                  sec:authorize="isAuthenticated()"
+                                  class="ms-2">
+                                <button type="submit" class="btn btn-favorite" title="Agregar a favoritos">
+                                    <i class="bi bi-heart" id="favoritoIcon"></i>
+                                </button>
+                            </form>
+
+                            <form th:action="@{/favoritos/eliminar/{id}(id=${producto.idProducto})}"
+                                  method="post"
+                                  th:if="${esFavorito}"
+                                  sec:authorize="isAuthenticated()"
+                                  class="ms-2">
+                                <button type="submit" class="btn btn-favorite" title="Eliminar de favoritos">
+                                    <i class="bi bi-heart-fill" id="favoritoIcon"></i>
+                                </button>
+                            </form>
                         </div>
-                    </form>
 
 
                     <!-- Información Adicional -->

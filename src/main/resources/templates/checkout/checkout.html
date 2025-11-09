@@ -16,35 +16,26 @@
 </head>
 <body>
 
-<!-- Navbar -->
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-<!-- Alertas -->
 <div th:replace="~{fragments/navbar :: alerts}"></div>
 
-<!-- Checkout Page -->
 <section class="checkout-page">
     <div class="container">
 
-        <!-- Header con Pasos -->
         <div class="checkout-header">
             <h1 class="display-6 fw-bold mb-4">
                 <i class="bi bi-credit-card me-3"></i>Finalizar Compra
             </h1>
-
             <div class="checkout-steps">
                 <div class="checkout-step completed">
-                    <div class="step-circle">
-                        <i class="bi bi-check"></i>
-                    </div>
+                    <div class="step-circle"><i class="bi bi-check"></i></div>
                     <div class="step-label">Carrito</div>
                 </div>
-
                 <div class="checkout-step active">
                     <div class="step-circle">2</div>
                     <div class="step-label">Envío y Pago</div>
                 </div>
-
                 <div class="checkout-step">
                     <div class="step-circle">3</div>
                     <div class="step-label">Confirmación</div>
@@ -55,17 +46,13 @@
         <form th:action="@{/checkout/procesar}" method="post" id="checkoutForm">
             <div class="row">
 
-                <!-- Formulario Principal -->
                 <div class="col-lg-7">
 
-                    <!-- Dirección de Envío -->
                     <div class="checkout-section">
                         <h3 class="section-title">
                             <i class="bi bi-geo-alt-fill"></i>
                             Dirección de Envío
                         </h3>
-
-                        <!-- Sin Direcciones -->
                         <div th:if="${direcciones.isEmpty()}" class="text-center py-4">
                             <i class="bi bi-house-x fs-1 text-muted mb-3"></i>
                             <p class="text-muted mb-3">No tienes direcciones guardadas</p>
@@ -74,8 +61,6 @@
                                 Agregar Nueva Dirección
                             </a>
                         </div>
-
-                        <!-- Lista de Direcciones -->
                         <div th:if="${!direcciones.isEmpty()}">
                             <div th:each="dir, iterStat : ${direcciones}">
                                 <label class="address-card"
@@ -86,36 +71,19 @@
                                            th:checked="${iterStat.first}"
                                            required
                                            onchange="selectAddress(this)">
-
                                     <div class="address-name">
                                         <i class="bi bi-person-fill me-2"></i>
                                         <span th:text="${dir.nombreCompleto}">Juan Pérez</span>
-
-                                        <span class="badge bg-success ms-2" th:if="${dir.esPredeterminada}">
-                                            Principal
-                                        </span>
+                                        <span class="badge bg-success ms-2" th:if="${dir.esPredeterminada}">Principal</span>
                                     </div>
-
                                     <div class="address-details">
-                                        <p class="mb-1">
-                                            <i class="bi bi-geo-alt me-2"></i>
-                                            <span th:text="${dir.direccionLinea1}">Av. Principal 123</span>
-                                        </p>
-                                        <p class="mb-1" th:if="${dir.direccionLinea2 != null}">
-                                            <span th:text="${dir.direccionLinea2}"></span>
-                                        </p>
-                                        <p class="mb-1">
-                                            <span th:text="${dir.ciudad + ', ' + dir.departamento}">Lima, Lima</span>
-                                        </p>
-                                        <p class="mb-0">
-                                            <i class="bi bi-telephone me-2"></i>
-                                            <span th:text="${dir.telefono}">987654321</span>
-                                        </p>
+                                        <p class="mb-1"><i class="bi bi-geo-alt me-2"></i> <span th:text="${dir.direccionLinea1}">Av. Principal 123</span></p>
+                                        <p class="mb-1" th:if="${dir.direccionLinea2 != null}"><span th:text="${dir.direccionLinea2}"></span></p>
+                                        <p class="mb-1"><span th:text="${dir.ciudad + ', ' + dir.departamento}">Lima, Lima</span></p>
+                                        <p class="mb-0"><i class="bi bi-telephone me-2"></i> <span th:text="${dir.telefono}">987654321</span></p>
                                     </div>
                                 </label>
                             </div>
-
-                            <!-- Agregar Nueva Dirección -->
                             <div class="text-center mt-3">
                                 <a th:href="@{/mi-cuenta/direcciones/nueva}" class="btn-add-address">
                                     <i class="bi bi-plus-circle me-2"></i>
@@ -125,59 +93,37 @@
                         </div>
                     </div>
 
-                    <!-- Método de Pago -->
                     <div class="checkout-section">
                         <h3 class="section-title">
                             <i class="bi bi-credit-card-fill"></i>
                             Método de Pago
                         </h3>
-
-                        <!-- Tarjeta de Crédito/Débito -->
                         <label class="payment-method selected">
-                            <input type="radio"
-                                   name="metodoPago"
-                                   value="TARJETA"
-                                   checked
-                                   onchange="selectPayment(this)">
+                            <input type="radio" name="metodoPago" value="TARJETA" checked onchange="selectPayment(this)">
                             <i class="bi bi-credit-card-2-front payment-icon"></i>
                             <div class="payment-details">
                                 <div class="payment-title">Tarjeta de Crédito/Débito</div>
                                 <div class="payment-description">Visa, Mastercard, American Express</div>
                             </div>
                         </label>
-
-                        <!-- Yape / Plin -->
                         <label class="payment-method">
-                            <input type="radio"
-                                   name="metodoPago"
-                                   value="YAPE"
-                                   onchange="selectPayment(this)">
+                            <input type="radio" name="metodoPago" value="YAPE" onchange="selectPayment(this)">
                             <i class="bi bi-phone payment-icon"></i>
                             <div class="payment-details">
                                 <div class="payment-title">Yape / Plin</div>
                                 <div class="payment-description">Pago rápido con tu celular</div>
                             </div>
                         </label>
-
-                        <!-- Transferencia Bancaria -->
                         <label class="payment-method">
-                            <input type="radio"
-                                   name="metodoPago"
-                                   value="TRANSFERENCIA"
-                                   onchange="selectPayment(this)">
+                            <input type="radio" name="metodoPago" value="TRANSFERENCIA" onchange="selectPayment(this)">
                             <i class="bi bi-bank payment-icon"></i>
                             <div class="payment-details">
                                 <div class="payment-title">Transferencia Bancaria</div>
                                 <div class="payment-description">Te enviaremos los datos por email</div>
                             </div>
                         </label>
-
-                        <!-- Contra Entrega -->
                         <label class="payment-method">
-                            <input type="radio"
-                                   name="metodoPago"
-                                   value="CONTRA_ENTREGA"
-                                   onchange="selectPayment(this)">
+                            <input type="radio" name="metodoPago" value="CONTRA_ENTREGA" onchange="selectPayment(this)">
                             <i class="bi bi-cash-coin payment-icon"></i>
                             <div class="payment-details">
                                 <div class="payment-title">Pago Contra Entrega</div>
@@ -186,44 +132,41 @@
                         </label>
                     </div>
 
-                    <!-- Cupón de Descuento -->
                     <div class="checkout-section">
                         <h3 class="section-title">
                             <i class="bi bi-ticket-perforated-fill"></i>
                             ¿Tienes un cupón de descuento?
                         </h3>
 
-                        <div class="cupon-section">
-                            <div class="alert alert-info mb-3" style="border-radius: 15px;">
-                                <i class="bi bi-lightning-charge-fill me-2"></i>
-                                <strong>CyberWOW Activo:</strong> Usa <strong>CYBERWOW30</strong> para 30% OFF
-                                o <strong>CYBER50</strong> para 50% OFF en compras +S/200
-                            </div>
-
+                        <div class="cupon-section" th:if="${cuponAplicado == null}">
                             <div class="cupon-input-group">
                                 <i class="bi bi-hash"></i>
                                 <input type="text"
-                                       name="codigoCupon"
                                        class="form-control"
                                        placeholder="Ingresa tu código de cupón"
-                                       id="codigoCupon">
-                                <button type="button"
-                                        class="btn btn-warning"
-                                        onclick="aplicarCupon()">
-                                    <i class="bi bi-check-circle me-2"></i>
-                                    Aplicar
-                                </button>
+                                       id="codigoCuponInput"> <button type="button"
+                                                                      class="btn btn-warning"
+                                                                      onclick="aplicarCupon()">
+                                <i class="bi bi-check-circle me-2"></i>
+                                Aplicar
+                            </button>
                             </div>
-                            <small class="text-muted d-block mt-2">
-                                <i class="bi bi-info-circle me-1"></i>
-                                Cupones disponibles: <strong>CYBERWOW30</strong>, <strong>CYBER50</strong>, <strong>CYBERENVIO</strong>
-                            </small>
+                        </div>
+
+                        <div th:if="${cuponAplicado != null}" class="alert alert-success d-flex justify-content-between align-items-center">
+                            <span>
+                                Cupón aplicado:
+                                <strong th:text="${cuponAplicado.codigo}">CYBERWOW30</strong>
+                            </span>
+
+                            <button type="button"
+                                    class="btn-close"
+                                    title="Quitar cupón"
+                                    onclick="quitarCupon()"></button>
                         </div>
                     </div>
-
                 </div>
 
-                <!-- Resumen del Pedido -->
                 <div class="col-lg-5">
                     <div class="order-summary">
                         <h3 class="section-title mb-4">
@@ -231,7 +174,6 @@
                             Resumen del Pedido
                         </h3>
 
-                        <!-- Items del Pedido -->
                         <div class="order-items mb-4">
                             <div class="order-item" th:each="item : ${items}">
                                 <img th:src="${!item.variante.producto.imagenes.isEmpty() ?
@@ -239,7 +181,6 @@
                                               '/images/no-image.jpg'}"
                                      th:alt="${item.variante.producto.nombre}"
                                      class="order-item-image">
-
                                 <div class="order-item-details">
                                     <div class="order-item-name"
                                          th:text="${item.variante.producto.nombre}">
@@ -251,7 +192,6 @@
                                         Cant: <span th:text="${item.cantidad}">1</span>
                                     </div>
                                 </div>
-
                                 <div class="order-item-price"
                                      th:text="'S/ ' + ${#numbers.formatDecimal(item.subtotal, 1, 2)}">
                                     S/ 89.90
@@ -259,7 +199,6 @@
                             </div>
                         </div>
 
-                        <!-- Cálculos -->
                         <div class="summary-row">
                             <span>Subtotal:</span>
                             <strong th:text="'S/ ' + ${#numbers.formatDecimal(subtotal, 1, 2)}">
@@ -279,9 +218,10 @@
                             </strong>
                         </div>
 
-                        <div class="summary-row text-success" id="descuentoRow" style="display: none;">
+                        <div class="summary-row text-success"
+                             th:if="${descuento != null && descuento.compareTo(T(java.math.BigDecimal).ZERO) > 0}">
                             <span>Descuento:</span>
-                            <strong id="descuentoMonto">- S/ 0.00</strong>
+                            <strong th:text="'- S/ ' + ${#numbers.formatDecimal(descuento, 1, 2)}">- S/ 0.00</strong>
                         </div>
 
                         <div class="summary-row total">
@@ -290,8 +230,6 @@
                                 S/ 0.00
                             </span>
                         </div>
-
-                        <!-- Botón Realizar Pedido -->
                         <button type="submit"
                                 class="btn btn-place-order"
                                 id="btnPlaceOrder"
@@ -300,7 +238,6 @@
                             Realizar Pedido Seguro
                         </button>
 
-                        <!-- Checkout Seguro -->
                         <div class="secure-checkout">
                             <i class="bi bi-shield-check"></i>
                             <p class="mb-1"><strong>Compra 100% Segura</strong></p>
@@ -311,59 +248,57 @@
 
             </div>
         </form>
-
     </div>
 </section>
 
-<!-- Footer -->
+<form th:action="@{/checkout/aplicar-cupon}" method="post" id="formAplicarCupon" style="display: none;">
+    <input type="hidden" name="codigo" id="hiddenCodigoCupon">
+</form>
+
+<form th:action="@{/checkout/quitar-cupon}" method="post" id="formQuitarCupon" style="display: none;">
+</form>
+
+
 <div th:replace="~{fragments/footer :: footer}"></div>
 
-<!-- JavaScript -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    function aplicarCupon() {
-        const codigoCupon = document.getElementById('codigoCupon').value.trim().toUpperCase();
+    // Tus funciones originales (sin cambios)
+    function selectAddress(radio) {
+        document.querySelectorAll('.address-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        radio.closest('.address-card').classList.add('selected');
+    }
 
-        if (!codigoCupon) {
-            alert('Por favor, ingresa un código de cupón');
+    function selectPayment(radio) {
+        document.querySelectorAll('.payment-method').forEach(method => {
+            method.classList.remove('selected');
+        });
+        radio.closest('.payment-method').classList.add('selected');
+    }
+
+    // --- NUEVA FUNCIÓN ---
+    function aplicarCupon() {
+        // 1. Obtener el código del input visible
+        const codigo = document.getElementById('codigoCuponInput').value;
+        if (!codigo) {
+            alert('Por favor, ingresa un código de cupón.');
             return;
         }
 
-        // Validación mejorada con los nuevos cupones CyberWOW
-        const cuponesValidos = {
-            'CYBERWOW30': { tipo: 'porcentaje', valor: 30, minimo: 100 },
-            'CYBER50': { tipo: 'porcentaje', valor: 50, minimo: 200 },
-            'CYBERENVIO': { tipo: 'fijo', valor: 15, minimo: 50 }
-        };
+        // 2. Copiarlo al input del formulario oculto
+        document.getElementById('hiddenCodigoCupon').value = codigo;
 
-        const cupon = cuponesValidos[codigoCupon];
+        // 3. Enviar el formulario oculto
+        document.getElementById('formAplicarCupon').submit();
+    }
 
-        if (cupon) {
-            // Obtener el subtotal actual
-            const subtotalText = document.querySelector('[th\\:text*="subtotal"]')?.textContent || 'S/ 0.00';
-            const subtotal = parseFloat(subtotalText.replace('S/', '').replace(',', '').trim());
-
-            if (subtotal < cupon.minimo) {
-                alert(`Este cupón requiere una compra mínima de S/ ${cupon.minimo}. Tu subtotal actual es S/ ${subtotal.toFixed(2)}`);
-                return;
-            }
-
-            let descuento = 0;
-            if (cupon.tipo === 'porcentaje') {
-                descuento = (subtotal * cupon.valor) / 100;
-            } else {
-                descuento = cupon.valor;
-            }
-
-            // Mostrar descuento
-            document.getElementById('descuentoRow').style.display = 'flex';
-            document.getElementById('descuentoMonto').textContent = '- S/ ' + descuento.toFixed(2);
-
-            alert(`¡Cupón CyberWOW aplicado exitosamente! 🎉\nDescuento: ${cupon.tipo === 'porcentaje' ? cupon.valor + '%' : 'S/ ' + cupon.valor}`);
-        } else {
-            alert('❌ Cupón inválido o expirado.\n\nCupones CyberWOW válidos:\n• CYBERWOW30 (30% OFF, compra mín. S/100)\n• CYBER50 (50% OFF, compra mín. S/200)\n• CYBERENVIO (S/15 OFF, compra mín. S/50)');
-        }
+    // --- NUEVA FUNCIÓN ---
+    function quitarCupon() {
+        // Enviar el formulario oculto de "quitar"
+        document.getElementById('formQuitarCupon').submit();
     }
 </script>
 
